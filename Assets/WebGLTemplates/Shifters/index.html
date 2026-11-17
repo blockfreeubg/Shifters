@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <meta name="description" content="SHIFTERS - three interns, one shift. A chaotic physics puzzle-platformer for Game Off 2026.">
+    <title>SHIFTERS</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230E1116'/%3E%3Cpath d='M44 14H24a10 10 0 0 0 0 20h16a4 4 0 0 1 0 8H18v8h22a12 12 0 0 0 0-24H24a2 2 0 0 1 0-4h20z' fill='%23FF8A1F'/%3E%3Cpath d='M0 58h64v6H0z' fill='%23FFC93C'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <!-- SHIFTERS gesture guard (pointer lock + fullscreen): MUST run before the Unity loader registers its window
+         error handlers. Browsers refuse these requests all the time (click within ~1 s after Esc, unfocused page,
+         iframe without allowfullscreen / pointer-lock, headless...). Unity's framework drops the promises returned by
+         requestPointerLock() / requestFullscreen(), so a refusal became an unhandled rejection -> Unity's error
+         handler -> alert() and a dead page ("TypeError: not granted" on the first click). Refusals are now warnings. -->
+    <script data-shifters-guard="pointer-lock fullscreen">
+      (function () {
+        "use strict";
+        var W = window;
+        var RECENT_MS = 4000;        // a vague rejection this soon after a request is that request's refusal
+        var last = { lock: -1e9, fullscreen: -1e9 };
+        var stats = W.shiftersGestureGuard = {
+          lockRequests: 0, lockGranted: 0, lockRefusals: 0, lockErrors: 0,
+          fullscreenRequests: 0, fullscreenExits: 0, fullscreenRefusals: 0, guardCatches: 0, last: ""
+        };
+        W.shiftersPointerLock = stats;   // older name (tools)
+        var GENERIC = /not granted|not allowed|denied|disallowed|permissions? (check failed|policy)|user gesture|user activation|not active|wrong\s*document|NotAllowedError|SecurityError|WrongDocumentError|NotSupportedError|InvalidStateError|UnknownError/i;
+        function now() { return W.performance && performance.now ? performance.now() : Date.now(); }
+        function describe(r) {
+          if (r === undefined || r === null) return String(r);
+          if (typeof r === "string") return r;
+          var name = r.name || (r.constructor && r.constructor.name) || typeof r;
+          return name + ": " + (r.message !== undefined ? r.message : String(r));
+        }
+        function textOf(reason, message) {
+          var t = (message || "") + " " + describe(reason);
+          try { if (reason && reason.stack) t += " " + reason.stack; } catch (e) { }
+          return t;
+        }
+        // "lock" / "fullscreen" when the rejection is such a refusal, else null. Explicit wording always counts;
+        // generic refusal wording ("not granted", NotAllowedError...) only right after one of those requests.
+        function refusalKind(reason, message) {
+          var t = textOf(reason, message);
+          if (/pointer\s*-?\s*lock|requestpointerlock|exited the lock/i.test(t)) return "lock";
+          if (/full\s*-?\s*screen/i.test(t)) return "fullscreen";
+          var dl = now() - last.lock, df = now() - last.fullscreen;
+          if (Math.min(dl, df) > RECENT_MS || !GENERIC.test(t)) return null;
+          return dl <= df ? "lock" : "fullscreen";
+        }
+        function report(kind, where, reason) {
+          stats.last = describe(reason);
+          if (kind === "fullscreen") {
+            stats.fullscreenRefusals++;
+            console.warn("[SHIFTERS] Fullscreen request refused by the browser (" + where + "): " + stats.last
+                         + " - harmless, the game keeps running; use the fullscreen button instead.");
+          } else {
+            stats.lockRefusals++;
+            console.warn("[SHIFTERS] Pointer lock refused by the browser (" + where + "): " + stats.last
+                         + " - harmless, the game keeps running; click the game to try again.");
+            if (W.shiftersTellPointerLock) W.shiftersTellPointerLock();   // the game shows CLICK TO PLAY and asks again
+          }
+        }
+        W.shiftersGestureRefusalKind = refusalKind;
+        W.shiftersReportGestureRefusal = report;
+
+        // 1) Guard: refusals that escape as unhandled rejections / errors are stopped BEFORE Unity's listeners see
+        //    them (capture phase on window, registered before the loader; stopImmediatePropagation keeps the event
+        //    away from Unity's error handler, preventDefault silences the browser's "Uncaught" report).
+        W.addEventListener("unhandledrejection", function (e) {
+          var kind = refusalKind(e.reason, "");
+          if (!kind) return;
+          stats.guardCatches++;
+          report(kind, "unhandledrejection guard", e.reason);
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }, true);
+        W.addEventListener("error", function (e) {
+          if (!(W.ErrorEvent && e instanceof ErrorEvent)) return;   // resource load errors are not ours
+          var kind = refusalKind(e.error, e.message);
+          if (!kind) return;
+          stats.guardCatches++;
+          report(kind, "error guard", e.error || e.message);
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }, true);
+        document.addEventListener("pointerlockerror", function () { stats.lockErrors++; }, true);
+        document.addEventListener("pointerlockchange", function () { if (document.pointerLockElement) stats.lockGranted++; }, true);
+
+        // 2) Unity calls requestPointerLock() / requestFullscreen() and drops the returned promise: attach the
+        //    rejection handler ourselves (refusal -> warning) and survive browsers that throw synchronously.
+        function guard(owner, name, kind, counter) {
+          if (!owner || typeof owner[name] !== "function" || owner[name].shiftersGuarded) return;
+          var original = owner[name];
+          var guarded = function () {
+            last[kind] = now();
+            stats[counter]++;
+            var p;
+            try { p = original.apply(this, arguments); }
+            catch (err) { report(kind, name + " threw", err); return undefined; }
+            if (p && typeof p.then === "function") p.then(null, function (err) { report(kind, name + " promise", err); });
+            return p;
+          };
+          guarded.shiftersGuarded = true;
+          owner[name] = guarded;
+        }
+        var el = W.Element && Element.prototype;
+        guard(el, "requestPointerLock", "lock", "lockRequests");
+        guard(el, "requestFullscreen", "fullscreen", "fullscreenRequests");
+        guard(el, "webkitRequestFullscreen", "fullscreen", "fullscreenRequests");
+        guard(W.Document && Document.prototype, "exitFullscreen", "fullscreen", "fullscreenExits");
+      })();
+    </script>
+  </head>
+  <body data-shifters-template="1">
+    <div id="shifters-root">
+      <div id="shifters-frame">
+        <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1" aria-label="SHIFTERS game"></canvas>
+
+        <div id="shifters-loader" role="status" aria-live="polite">
+          <div class="sh-hazard sh-hazard-top"></div>
+          <div class="sh-hazard sh-hazard-bottom"></div>
+          <div class="sh-center">
+            <div class="sh-kicker">SHIFTERS INC. &middot; INTERN ONBOARDING</div>
+            <h1 class="sh-title" aria-label="SHIFTERS"><span>S</span><span>H</span><span>I</span><span>F</span><span>T</span><span>E</span><span>R</span><span>S</span></h1>
+            <div class="sh-tagline">THREE INTERNS. ONE SHIFT. TRY NOT TO LOSE THEM.</div>
+            <div class="sh-bar" aria-hidden="true"><div class="sh-bar-fill" id="shifters-bar-fill"></div></div>
+            <div class="sh-status"><span id="shifters-status">CLOCKING IN</span><span id="shifters-percent">0%</span></div>
+            <div class="sh-tip" id="shifters-tip">TIP: RIGHT SHIFT OPENS THE SHIFT WHEEL. 1 / 2 / 3 SWAP INTERNS INSTANTLY.</div>
+          </div>
+          <div class="sh-badge">GAME OFF 2026 &middot; THEME: SHIFT</div>
+          <div class="sh-hint">BEST WITH KEYBOARD + MOUSE</div>
+        </div>
+
+        <div id="shifters-error" hidden>
+          <div class="sh-error-card">
+            <div class="sh-error-title">SHIFT CANCELLED</div>
+            <div class="sh-error-text" id="shifters-error-text">Something went wrong while starting the game.</div>
+            <button type="button" id="shifters-reload">RELOAD</button>
+          </div>
+        </div>
+
+        <div id="shifters-toast" aria-live="polite"></div>
+        <div id="shifters-focus-hint" hidden>CLICK THE GAME TO FOCUS IT</div>
+        <button type="button" id="shifters-fullscreen" title="Fullscreen (F11 also works)" aria-label="Toggle fullscreen">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 9V3h6v2H5v4H3zm12-6h6v6h-2V5h-4V3zM3 15h2v4h4v2H3v-6zm16 0h2v6h-6v-2h4v-4z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var root = document.getElementById("shifters-root");
+        var frame = document.getElementById("shifters-frame");
+        var canvas = document.getElementById("unity-canvas");
+        var loader = document.getElementById("shifters-loader");
+        var barFill = document.getElementById("shifters-bar-fill");
+        var statusEl = document.getElementById("shifters-status");
+        var percentEl = document.getElementById("shifters-percent");
+        var tipEl = document.getElementById("shifters-tip");
+        var errorEl = document.getElementById("shifters-error");
+        var errorText = document.getElementById("shifters-error-text");
+        var toastEl = document.getElementById("shifters-toast");
+        var focusHint = document.getElementById("shifters-focus-hint");
+        var fsButton = document.getElementById("shifters-fullscreen");
+        var boot = window.shiftersBoot = { state: "loading", progress: 0, startedAt: Date.now(), readyAt: 0, error: "" };
+
+        // ---------------------------------------------------------------- layout: 16:9 box that fits any viewport
+        // (CSS does the sizing; this only reports the canvas rect for tools: window.shiftersCanvasRect())
+        window.shiftersCanvasRect = function () { var r = canvas.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+
+        // ---------------------------------------------------------------- focus on click (itch.io iframe)
+        function focusGame() {
+          try { window.focus(); } catch (e) { }
+          try { canvas.focus({ preventScroll: true }); } catch (e) { canvas.focus(); }
+          focusHint.hidden = true;
+        }
+        frame.addEventListener("pointerdown", function (e) { if (e.target !== fsButton && !fsButton.contains(e.target)) focusGame(); }, true);
+        window.addEventListener("focus", function () { focusHint.hidden = true; });
+        window.addEventListener("blur", function () { if (boot.state === "ready" && !document.pointerLockElement) focusHint.hidden = false; });
+        // keys that would scroll the itch.io page (or move focus out of the game) while the game has focus
+        var scrollKeys = { Space: 1, ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1, PageUp: 1, PageDown: 1, Home: 1, End: 1, Tab: 1 };
+        window.addEventListener("keydown", function (e) {
+          if (scrollKeys[e.code] && (document.activeElement === canvas || document.activeElement === document.body)) e.preventDefault();
+        }, false);
+        canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+        // ---------------------------------------------------------------- fullscreen (itch.io button works too)
+        function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+        function toggleFullscreen() {
+          if (fsElement()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+          var req = root.requestFullscreen || root.webkitRequestFullscreen;
+          if (req) req.call(root);   // a refusal is reported by the gesture guard (head)
+          focusGame();
+        }
+        ["pointerdown", "mousedown", "mouseup", "click"].forEach(function (t) {
+          fsButton.addEventListener(t, function (e) { e.stopPropagation(); if (t === "click") toggleFullscreen(); });
+        });
+        var hideTimer = 0;
+        function showChrome() {
+          if (document.pointerLockElement || boot.state !== "ready") return;
+          fsButton.classList.add("sh-visible");
+          clearTimeout(hideTimer);
+          hideTimer = setTimeout(function () { fsButton.classList.remove("sh-visible"); }, 2200);
+        }
+        frame.addEventListener("mousemove", showChrome, { passive: true });
+        document.addEventListener("pointerlockchange", function () { if (document.pointerLockElement) fsButton.classList.remove("sh-visible"); });
+
+        // ---------------------------------------------------------------- pointer lock -> game
+        // Unity's Cursor.lockState reads Locked as soon as the game ASKS for the lock and stays Locked when the browser
+        // refuses it; tell the game the real state (GameSession.OnBrowserPointerLock -> ShiftersInput) so it can show
+        // CLICK TO PLAY and ask again on the next click. Sent on every change / refusal once the game runs.
+        var lockSent = -1;
+        function tellPointerLock() {
+          var held = document.pointerLockElement === canvas ? 1 : 0;
+          if (!window.unityInstance) return;
+          if (held === 1 && lockSent === 1) return;
+          lockSent = held;
+          try { window.unityInstance.SendMessage("[SHIFTERS]", "OnBrowserPointerLock", held ? "1" : "0"); } catch (e) { }
+        }
+        window.shiftersTellPointerLock = tellPointerLock;
+        document.addEventListener("pointerlockchange", tellPointerLock);
+        document.addEventListener("pointerlockerror", tellPointerLock);
+
+        // ---------------------------------------------------------------- loader UI
+        var tips = [
+          "TIP: RIGHT SHIFT OPENS THE SHIFT WHEEL. 1 / 2 / 3 SWAP INTERNS INSTANTLY.",
+          "TIP: F GRABS, Q THROWS. YES, COWORKERS COUNT AS LUGGAGE.",
+          "TIP: B TURNS AN INTERN INTO A LIVING BRIDGE. HR SAYS IT IS FINE.",
+          "TIP: R SCANS THE ROOM - EVERY INTERN SEES THE WORLD DIFFERENTLY.",
+          "TIP: CLICK THE GAME TO GRAB THE MOUSE. ESC OR P PAUSES."
+        ];
+        var tipIndex = 0;
+        var tipTimer = setInterval(function () {
+          tipIndex = (tipIndex + 1) % tips.length;
+          tipEl.classList.add("sh-fade");
+          setTimeout(function () { tipEl.textContent = tips[tipIndex]; tipEl.classList.remove("sh-fade"); }, 250);
+        }, 4200);
+        function setProgress(p) {
+          p = Math.max(0, Math.min(1, p || 0));
+          boot.progress = p;
+          barFill.style.width = (p * 100).toFixed(1) + "%";
+          percentEl.textContent = Math.round(p * 100) + "%";
+          if (p >= 1 && boot.state === "loading") { boot.state = "starting"; statusEl.textContent = "STARTING YOUR SHIFT"; }
+        }
+        function hideLoader() {
+          clearInterval(tipTimer);
+          loader.classList.add("sh-done");
+          setTimeout(function () { loader.style.display = "none"; }, 450);
+        }
+
+        // ---------------------------------------------------------------- errors: in-page, never alert()
+        function showFatal(message) {
+          boot.state = "error";
+          boot.error = String(message);
+          console.error("[SHIFTERS] fatal: " + message);
+          errorText.textContent = String(message).split("\n")[0].slice(0, 400);
+          errorEl.hidden = false;
+          clearInterval(tipTimer);
+        }
+        var toastTimer = 0;
+        function toast(message, kind) {
+          toastEl.textContent = message;
+          toastEl.className = "sh-show" + (kind ? " sh-" + kind : "");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toastEl.className = ""; }, 7000);
+        }
+        document.getElementById("shifters-reload").addEventListener("click", function () { location.reload(); });
+        var FATAL = /abort|RuntimeError|out of memory|memory access out of bounds|unreachable|could not allocate|Cannot enlarge memory|WebGL|context lost/i;
+        // Unity: "error" banners abort loading; warnings are for developers (console only).
+        function showBanner(msg, type) {
+          var text = String(msg).replace(/<[^>]*>/g, "");
+          if (type === "error") showFatal(text);
+          else if (type === "warning") console.warn("[SHIFTERS] " + text);
+          else console.log("[SHIFTERS] " + text);
+        }
+        // Unity's runtime error handler: pointer-lock / fullscreen refusals are harmless; anything else is reported in-page
+        // (returning true stops Unity's blocking alert()).
+        function errorHandler(message, filename, lineno) {
+          var kind = window.shiftersGestureRefusalKind && window.shiftersGestureRefusalKind(null, String(message));
+          if (kind) {
+            window.shiftersReportGestureRefusal(kind, "Unity error handler", String(message).split("\n")[0]);
+            return true;
+          }
+          console.error("[SHIFTERS] runtime error: " + message + (filename ? " (" + filename + ":" + lineno + ")" : ""));
+          if (FATAL.test(String(message))) showFatal(message);
+          else toast("Something glitched (see the browser console). Reload if the game misbehaves.", "error");
+          return true;
+        }
+
+        // ---------------------------------------------------------------- Unity
+        var params = new URLSearchParams(location.search);
+        var maxDpr = parseFloat(params.get("dpr")) || 1.5;   // cap the backbuffer on Retina/4K screens (WebGL perf)
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+        var config = {
+          arguments: [],
+#if PROGRESSIVE_ASSET_LOADING
+          primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+          secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+#else
+          dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+#endif
+          frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_WASM
+          codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+          symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+          streamingAssetsUrl: "StreamingAssets",
+          fullscreenElementID: "shifters-root",
+          companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+          productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+          productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+          showBanner: showBanner,
+          errorHandler: errorHandler,
+          autoSyncPersistentDataPath: true,
+          devicePixelRatio: Math.min(window.devicePixelRatio || 1, maxDpr)
+        };
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onerror = function () { showFatal("Could not load " + loaderUrl + " - upload the whole build folder (index.html at the zip root)."); };
+        script.onload = function () {
+          createUnityInstance(canvas, config, setProgress).then(function (unityInstance) {
+            window.unityInstance = unityInstance;
+            boot.state = "ready";
+            boot.readyAt = Date.now();
+            setProgress(1);
+            hideLoader();
+            if (document.hasFocus()) focusGame(); else focusHint.hidden = false;
+          }).catch(function (message) {
+            showFatal(message);
+          });
+        };
+        document.body.appendChild(script);
+      })();
+    </script>
+  </body>
+</html>

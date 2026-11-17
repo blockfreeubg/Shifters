@@ -1,0 +1,50 @@
+# ---- Unity generated (never commit) ----
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+crashlytics-build.properties
+*.unitypackage
+*.apk
+*.aab
+
+# ---- IDE / solution files (Unity regenerates them) ----
+.vs/
+.idea/
+*.csproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Unity Version Control (Plastic) workspace metadata ----
+/.plastic/
+
+# ---- SHIFTERS build-workspace backup (agent clones, not part of the game) ----
+/_ShiftersWIP/
+
+# ---- local tools / stray build output ----
+/.claude/
+/Data/
+.vscode/

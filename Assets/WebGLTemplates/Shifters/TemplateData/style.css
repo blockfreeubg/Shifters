@@ -1,0 +1,124 @@
+/* SHIFTERS WebGL template - dark facility look, signature orange #FF8A1F + yellow #FFC93C (UIColors). */
+@font-face { font-family: "Bungee"; src: url("fonts/Bungee-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; src: url("fonts/BarlowCondensed-Bold.ttf") format("truetype"); font-display: swap; }
+
+:root {
+  --sh-bg: #07090c;
+  --sh-panel: #0e1116;
+  --sh-orange: #ff8a1f;
+  --sh-yellow: #ffc93c;
+  --sh-text: #f2f4f8;
+  --sh-muted: #9aa4b2;
+  --sh-danger: #ff4d5e;
+  --sh-label: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --sh-display: "Bungee", "Arial Black", Impact, sans-serif;
+}
+
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--sh-bg); color: var(--sh-text); }
+body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+
+/* 16:9 frame that fits the viewport: exactly 1280x720 in the itch.io embed, letterboxed in fullscreen. */
+#shifters-root { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--sh-bg); }
+#shifters-frame {
+  position: relative; overflow: hidden;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  background: #0b0e13;
+}
+#unity-canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; background: #0b0e13; outline: none; }
+#shifters-root:fullscreen, #shifters-root:-webkit-full-screen { width: 100%; height: 100%; background: #000; }
+
+/* ------------------------------------------------------------------ loader */
+#shifters-loader {
+  position: absolute; inset: 0; z-index: 5; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 46%, rgba(255, 138, 31, 0.13), rgba(255, 138, 31, 0) 70%),
+    radial-gradient(ellipse at 50% 45%, #171c25 0%, #0b0e13 58%, #05070a 100%);
+  transition: opacity 0.45s ease;
+  font-family: var(--sh-label);
+}
+#shifters-loader.sh-done { opacity: 0; pointer-events: none; }
+#shifters-loader::before { /* faint blueprint grid */
+  content: ""; position: absolute; inset: 0; opacity: 0.35;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 4.5% 8%;
+}
+.sh-hazard { position: absolute; left: -2%; right: -2%; height: 2.1%; min-height: 8px;
+  background: repeating-linear-gradient(-45deg, var(--sh-yellow) 0 14px, #111 14px 28px); opacity: 0.9; }
+.sh-hazard-top { top: 0; }
+.sh-hazard-bottom { bottom: 0; }
+.sh-center { position: relative; width: 74%; text-align: center; }
+.sh-kicker { font-size: clamp(10px, 1.45vw, 19px); letter-spacing: 0.32em; color: var(--sh-muted); margin-bottom: 0.4em; }
+.sh-title {
+  margin: 0; line-height: 1; font-family: var(--sh-display); font-weight: 400;
+  font-size: clamp(44px, 10.5vw, 150px); letter-spacing: 0.02em;
+  filter: drop-shadow(0 0.06em 0 #000) drop-shadow(0 0.1em 0.12em rgba(0, 0, 0, 0.55));
+}
+.sh-title span {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffd45c 0%, var(--sh-yellow) 30%, var(--sh-orange) 78%, #e86a0c 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  animation: sh-shift 3.2s ease-in-out infinite;
+}
+.sh-title span:nth-child(2) { animation-delay: 0.12s; } .sh-title span:nth-child(3) { animation-delay: 0.24s; }
+.sh-title span:nth-child(4) { animation-delay: 0.36s; } .sh-title span:nth-child(5) { animation-delay: 0.48s; }
+.sh-title span:nth-child(6) { animation-delay: 0.60s; } .sh-title span:nth-child(7) { animation-delay: 0.72s; }
+.sh-title span:nth-child(8) { animation-delay: 0.84s; }
+@keyframes sh-shift { 0%, 70%, 100% { transform: translateY(0); } 78% { transform: translateY(-0.07em) rotate(-2deg); } 86% { transform: translateY(0.02em); } }
+.sh-tagline { margin-top: 0.7em; font-size: clamp(12px, 2.05vw, 28px); letter-spacing: 0.16em; color: var(--sh-text); }
+.sh-bar {
+  position: relative; margin: 2.2em auto 0; width: 62%; height: clamp(10px, 1.6vw, 20px);
+  border: 2px solid rgba(255, 201, 60, 0.85); border-radius: 4px; overflow: hidden;
+  background: repeating-linear-gradient(-45deg, rgba(255, 201, 60, 0.16) 0 10px, rgba(0, 0, 0, 0.5) 10px 20px);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.sh-bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+  background: repeating-linear-gradient(-45deg, var(--sh-orange) 0 12px, #ff9d3d 12px 24px);
+  background-size: 34px 34px; animation: sh-stripes 0.9s linear infinite;
+  box-shadow: 0 0 18px rgba(255, 138, 31, 0.6); transition: width 0.25s ease-out;
+}
+@keyframes sh-stripes { from { background-position: 0 0; } to { background-position: 34px 0; } }
+.sh-status { display: flex; justify-content: space-between; width: 62%; margin: 0.65em auto 0;
+  font-size: clamp(11px, 1.55vw, 21px); letter-spacing: 0.2em; color: var(--sh-yellow); }
+.sh-status #shifters-status::after { content: "..."; display: inline-block; width: 1.5em; text-align: left; animation: sh-dots 1.2s steps(4) infinite; overflow: hidden; vertical-align: bottom; }
+@keyframes sh-dots { from { width: 0; } to { width: 1.5em; } }
+.sh-tip { margin: 1.6em auto 0; width: 80%; min-height: 2.6em; font-size: clamp(10px, 1.4vw, 19px); letter-spacing: 0.1em; color: var(--sh-muted); transition: opacity 0.25s; }
+.sh-tip.sh-fade { opacity: 0; }
+.sh-badge, .sh-hint { position: absolute; bottom: 4.2%; font-size: clamp(9px, 1.15vw, 15px); letter-spacing: 0.22em; color: var(--sh-muted); }
+.sh-badge { left: 3%; color: var(--sh-yellow); }
+.sh-hint { right: 3%; }
+
+/* ------------------------------------------------------------------ errors / toasts / hints */
+#shifters-error { position: absolute; inset: 0; z-index: 9; display: flex; align-items: center; justify-content: center; background: rgba(5, 7, 10, 0.86); font-family: var(--sh-label); }
+#shifters-error[hidden] { display: none; }
+.sh-error-card { width: 58%; padding: 2.2em 2.4em; background: var(--sh-panel); border: 2px solid var(--sh-danger); border-radius: 8px; text-align: center; box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6); }
+.sh-error-title { font-family: var(--sh-display); font-size: clamp(22px, 3.6vw, 48px); color: var(--sh-danger); }
+.sh-error-text { margin: 0.9em 0 1.4em; font-size: clamp(12px, 1.5vw, 20px); letter-spacing: 0.05em; color: var(--sh-text); word-break: break-word; }
+#shifters-reload { font-family: var(--sh-display); font-size: clamp(14px, 1.7vw, 22px); padding: 0.45em 1.6em; border: 0; border-radius: 6px; cursor: pointer; color: #111; background: var(--sh-orange); box-shadow: 0 4px 0 #a34e05; }
+#shifters-reload:hover { background: var(--sh-yellow); }
+/* top-RIGHT corner, kept inside the area no screen uses (right ~26%, top ~10% of the frame): menu titles sit
+   top-center (MEET YOUR INTERNS reaches ~72% of the width) or top-left (logo, PAUSED); the pause stats panel and the
+   SHIFT COMPLETE band start ~10% down. Two lines at most for the error message. */
+#shifters-toast { position: absolute; right: 1.5%; top: 2%; z-index: 8; box-sizing: border-box; max-width: 25%; transform: translateY(-20px); opacity: 0; pointer-events: none;
+  padding: 0.5em 0.9em; border-radius: 6px; background: rgba(14, 17, 22, 0.94); border-left: 4px solid var(--sh-yellow);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); text-align: left; line-height: 1.25;
+  font-family: var(--sh-label); font-size: clamp(10px, 1.1vw, 15px); letter-spacing: 0.04em; transition: opacity 0.25s, transform 0.25s; }
+#shifters-toast.sh-show { opacity: 1; transform: translateY(0); }
+#shifters-toast.sh-error { border-left-color: var(--sh-danger); }
+#shifters-focus-hint { position: absolute; left: 50%; bottom: 3.5%; z-index: 6; transform: translateX(-50%); pointer-events: none;
+  padding: 0.35em 0.9em; border-radius: 4px; background: rgba(14, 17, 22, 0.85); border: 1px solid rgba(255, 201, 60, 0.6);
+  color: var(--sh-yellow); font-family: var(--sh-label); font-size: clamp(10px, 1.15vw, 15px); letter-spacing: 0.2em; }
+#shifters-focus-hint[hidden] { display: none; }
+
+/* fullscreen button: appears on mouse movement (not while the pointer is locked). Bottom-right, but ABOVE the main
+   menu's bottom-right block: the "v1.0 JAM BUILD" label (bottom ~3%) and the "YOUR INTERNS" row shown above it once a
+   run exists (bottom ~6-8.5%). Right of the team reveal's START SHIFT button. */
+#shifters-fullscreen {
+  position: absolute; right: 1.2%; bottom: 11%; z-index: 7; width: 38px; height: 38px; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 201, 60, 0.55); background: rgba(14, 17, 22, 0.78); color: var(--sh-yellow); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+#shifters-fullscreen.sh-visible { opacity: 0.9; pointer-events: auto; }
+#shifters-fullscreen:hover { opacity: 1; background: var(--sh-orange); color: #111; }

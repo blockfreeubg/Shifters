@@ -1,0 +1,17 @@
+* text=auto
+# Unity YAML assets are text; keep LF and let git diff them
+*.unity text eol=lf
+*.prefab text eol=lf
+*.asset text eol=lf
+*.mat text eol=lf
+*.meta text eol=lf
+*.cs text eol=lf diff=csharp
+*.shader text eol=lf
+*.hlsl text eol=lf
+# binaries
+*.png binary
+*.jpg binary
+*.ttf binary
+*.otf binary
+*.wav binary
+*.ogg binary

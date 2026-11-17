@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sky_Factory
+  m_Shader: {fileID: 4800000, guid: 14c9a2705557255c8857576bec638bf9, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _HorizonOffset: 0
+    - _HorizonSharpness: 2.6
+    - _NebulaStrength: 0.3
+    - _Seed: 5.3
+    - _ShaftStrength: 0.3
+    - _StarStrength: 0
+    - _SunGlow: 0.7
+    - _SunSize: 0.25
+    m_Colors:
+    - _BottomColor: {r: 0.13333334, g: 0.078431375, b: 0.05490196, a: 1}
+    - _HorizonColor: {r: 0.77254903, g: 0.47058824, b: 0.26666668, a: 1}
+    - _NebulaColorA: {r: 1, g: 0.6039216, b: 0.2901961, a: 1}
+    - _NebulaColorB: {r: 0.43137255, g: 0.22745098, b: 0.13333334, a: 1}
+    - _SunColor: {r: 1, g: 0.6901961, b: 0.3882353, a: 1}
+    - _SunDirection: {r: -0.7094064, g: 0.5, b: 0.4967318, a: 0}
+    - _TopColor: {r: 0.16470589, g: 0.09803922, b: 0.07058824, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Shifters/Scenes/MainMenu.unity
+    guid: f36c353b0ffa04f17bd07f9c66693f7c
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L1_TrainingFacility.unity
+    guid: 41b6a833ee284468f8479573e300a8a7
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L2_WeightProblem.unity
+    guid: e6fe8cead11c94c4ab39075171e7f520
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L3_SacrificeZone.unity
+    guid: 8f6f42863a0994a8db4a04e75e1404e8
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L4_IQTest.unity
+    guid: fb35fa7d75fb44a479157d3190058560
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L5_TotalChaos.unity
+    guid: 8c81496d608dc4d70af35dbf692dcb80
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L6_PerformanceReview.unity
+    guid: f20fc55ac0c9d48668d1129810a5a92f
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L7_ActNatural.unity
+    guid: 90c4009c295114856b32b006a4d9d670
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L8_ColorReserve.unity
+    guid: 3a6149bf27a3b4a64a254701cb5931bb
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L9_TheGetaway.unity
+    guid: 98bbd4996736c4705a325d3b06cde9ae
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L10_LightsOut.unity
+    guid: 7593b821815ae43e3a9703d01b672398
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L11_MeMorialPark.unity
+    guid: 5b3f15d010eb34a70b40fdf1c59d6ee8
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L12_Unmasked.unity
+    guid: 0632d5338586c412fb5fe5b9be7a39c4
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L13_HostileTakeover.unity
+    guid: 0f3a8bd97d7a2472aafae71c45cc94e5
+  - enabled: 1
+    path: Assets/Shifters/Scenes/L14_AllInFavor.unity
+    guid: f0c97ddc6a80941a49c77aed02d64f16
+  - enabled: 0
+    path: Assets/Scenes/SampleScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
