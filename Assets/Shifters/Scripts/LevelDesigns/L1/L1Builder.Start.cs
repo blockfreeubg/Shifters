@@ -45,7 +45,7 @@ namespace Shifters
             Sign(s, V(0f, 4.15f, 6.2f), 180f, "YOUR FIRST SHIFT HAS BEGUN", 7f, 0.6f);
 
             // warm-up markings
-            FloorText(s, V(0f, 0f, 7.6f), 0f, "STEP UP  (SPACE)", 0.55f, UIColors.Accent);
+            DevicePromptText.Attach(FloorText(s, V(0f, 0f, 7.6f), 0f, InputPrompts.Format("STEP UP  ({JUMP})", false, false), 0.55f, UIColors.Accent), "STEP UP  ({JUMP})");
             FloorText(s, V(0f, StepTop, 14.6f), 0f, "MIND THE GAP. OR DON'T: IT'S FOAM.", 0.42f, UIColors.AccentYellow);
             FloorText(s, V(0f, StepTop, 20.2f), 0f, "HOP THE WALL", 0.55f, UIColors.Accent);
             FloorText(s, V(0f, StepTop, 26f), 0f, "GENTLE RAMP. YOU'RE WELCOME.", 0.42f, UIColors.Info);
@@ -64,9 +64,9 @@ namespace Shifters
             ctx.Tutorial(V(0f, 1.5f, -5f), V(18f, 3.5f, 10f), "welcome", "WELCOME TO SHIFTERS",
                 "Welcome to SHIFTERS. You have three characters. Try not to lose them.", new[] { "Backspace" }, true);
             ctx.Tutorial(V(0f, 1.5f, 3.5f), V(18f, 3.5f, 6f), "movement", "MOVEMENT",
-                "WASD to walk, MOUSE to look around, SPACE to jump, hold LEFT SHIFT to sprint.", new[] { "WASD", "Mouse", "Space", "LShift" });
+                "{Move} to walk, {LOOK} to look around, {JUMP} to jump, {kb:hold LEFT SHIFT}{pad:click {Sprint}} to sprint.", new[] { "WASD", "Mouse", "Space", "LShift" });
             ctx.Hint(V(0f, 2f, 16f), V(18f, 5f, 20f),
-                "Jump up the step with SPACE, hop the foam gap, then jump onto the low wall and drop down the far side.",
+                "Jump up the step with {JUMP}, hop the foam gap, then jump onto the low wall and drop down the far side.",
                 "Up, over, over again. Legs are involved.");
 
             // decor: friendly lobby
@@ -132,10 +132,10 @@ namespace Shifters
 
             // tutorials: switching at the plate, team orders after the lever
             ctx.Tutorial(V(0f, 1.5f, 37f), V(18f, 3.5f, 9f), "switching", "SWITCHING",
-                "Press RIGHT SHIFT to open the switcher, or 1/2/3 to switch directly. Teammates stay exactly where you leave them.",
+                "Press {Switcher|RIGHT SHIFT} to open the switcher{kb:, or 1/2/3 to switch directly}. Teammates stay exactly where you leave them.",
                 new[] { "RShift", "1", "2", "3" }, true);
             var orders = Kit.Make("Tutorial_team_orders", ctx.Gameplay, V(7.6f, 1f, 47f)).AddComponent<L1SignalTutorial>();
-            orders.Message = new TutorialMessage { Id = "team_orders", Title = "TEAM ORDERS", Body = "Press G: inactive teammates FOLLOW you or HOLD position.", Keys = new[] { "G" }, Duration = 9f };
+            orders.Message = new TutorialMessage { Id = "team_orders", Title = "TEAM ORDERS", Body = "Press {AIMode}: inactive teammates FOLLOW you or HOLD position.", Keys = new[] { "G" }, Duration = 9f };
             orders.Logic = SignalLogic.Latch;
             PuzzleKit.Wire(orders, l1);
             ctx.Mark("tutorial.team_orders", orders.gameObject);
@@ -147,7 +147,7 @@ namespace Shifters
 
             // decor
             var d = ctx.Decor;
-            Board(d, V(-7.2f, 0f, 31.5f), 90f, "HOW TO SHIFT:\n1. PANIC\n2. PRESS SHIFT\n3. PANIC LESS");
+            DevicePromptText.AttachInChildren(Board(d, V(-7.2f, 0f, 31.5f), 90f, InputPrompts.Format(HowToShift, false, false)), HowToShift);
             Poster(d, V(8.75f, 2f, 33f), -90f, "FAILURE IS A LEARNING OPPORTUNITY", "(FOR US)");
             Poster(d, V(-8.75f, 2f, 47f), 90f, "PLEASE DO NOT SHIFT THE BLAME", "(OR THE INTERNS)");
             EnvKit.Decor.Plant(d, V(8f, 0f, 29.2f), 1);

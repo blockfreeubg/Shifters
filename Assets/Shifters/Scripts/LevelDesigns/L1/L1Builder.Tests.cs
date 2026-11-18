@@ -67,9 +67,9 @@ namespace Shifters
             IQNote(s, V(-20.75f, 2.6f, 65.5f), -90f, "THE PASSWORD IS 'PASSWORD'", 0.32f);
             IQNote(s, V(-15f, 2.3f, 70.75f), 0f, "SMART PEOPLE READ WALLS", 0.3f);
             ctx.Tutorial(V(-12.5f, 1.5f, IqZ), V(7f, 3.5f, 7f), "intellect", "INTELLECT",
-                "Smart characters hack terminals and see hidden clues. Walk up and press E.", new[] { "E" });
+                "Smart characters hack terminals and see hidden clues. Walk up and press {Interact}.", new[] { "E" });
             ctx.Hint(V(-15f, 2f, IqZ), V(12f, 5f, 7f),
-                "Switch to your BIG BRAIN (IQ 7+), walk up to the terminal and press E. Hold still while it hacks.",
+                "Switch to your BIG BRAIN (IQ 7+), walk up to the terminal and press {Interact}. Hold still while it hacks.",
                 "The computer only talks to nerds.");
 
             // ---- SPD lane: timed button -> 28 m straight run -> D_spd -> latching plate
@@ -93,9 +93,9 @@ namespace Shifters
             for (float x = SpdButtonX + 5f; x < SpdDoorX - 3f; x += 3f)
                 Kit.BoxVisual(s, "LaneLine", V(x, 0.012f, LaneZ), V(1.2f, 0.02f, 0.12f), MatKey.SignWhite, 0.003f, null, false);
             ctx.Tutorial(V(12.5f, 1.5f, LaneZ), V(7f, 3.5f, 8f), "speed", "SPEED",
-                "Fast characters beat timed doors. Press E on the timed button, then hold LEFT SHIFT and run.", new[] { "E", "LShift" });
+                "Fast characters beat timed doors. Press {Interact} on the timed button, then {kb:hold LEFT SHIFT}{pad:click {Sprint}} and run.", new[] { "E", "LShift" });
             ctx.Hint(V(26f, 2f, LaneZ), V(36f, 5f, 8f),
-                "Only TURBO LEGS can beat this door. Switch to your sprinter, press the timed button and sprint (LEFT SHIFT) straight down the lane onto the plate.",
+                "Only TURBO LEGS can beat this door. Switch to your sprinter, press the timed button and sprint ({Sprint|LEFT SHIFT}) straight down the lane onto the plate.",
                 "Run. Like your performance review depends on it. It does.");
 
             // ---- door D2: latch-AND of the three lane results
@@ -117,7 +117,7 @@ namespace Shifters
             Sign(s, V(8.75f, 4.6f, LaneZ), -90f, "SPEED TEST", 4.5f, 0.9f, SignStyle.Danger);
             Sign(s, V(0f, 5.85f, HubZ1 - 0.3f), 180f, "APTITUDE TESTS: ALL THREE OR NOTHING", 9f, 0.85f, SignStyle.Exit);
             ctx.Tutorial(V(0f, 1.5f, 55f), V(18f, 3.5f, 5f), "perspective", "SHIFT PERSPECTIVE",
-                "Each character sees the world differently. Switch and look for highlights. Press R to scan.", new[] { "R", "RShift" });
+                "Each character sees the world differently. Switch and look for highlights. Press {Scan} to scan.", new[] { "R", "RShift" });
             ctx.Tutorial(V(0f, 1.5f, 62f), V(18f, 3.5f, 6f), "stats", "STATS",
                 "Some characters are better suited for certain puzzles. Check stats in the switcher.", new[] { "RShift" });
             ctx.Hint(V(0f, 2f, 62f), V(18f, 5f, 20f),
@@ -130,7 +130,7 @@ namespace Shifters
             var d = ctx.Decor;
             Board(d, V(6.2f, 0f, 69.6f), 200f, "TODAY'S SHIFT SCORES:\nSTR  ???\nSPD  ???\nIQ   ???\nVIBES: GREAT");
             Poster(d, V(-8.78f, 2.1f, 63f), 90f, "HAVE YOU TRIED", "BEING SMARTER?"); // on the lane divider (z 62..64)
-            Poster(d, V(8.75f, 2.1f, 68f), -90f, "SHIFT HAPPENS", "ESPECIALLY WHEN YOU PRESS RIGHT SHIFT");
+            DevicePromptText.AttachInChildren(Poster(d, V(8.75f, 2.1f, 68f), -90f, "SHIFT HAPPENS", InputPrompts.Format(ShiftHappens, false, false)), ShiftHappens);
             Poster(d, V(-32.75f, 2.2f, LaneZ - 2.5f), 90f, "LIFT WITH YOUR LEGS", "OR YOUR COWORKERS");
             EnvKit.Decor.CrateStack(d, V(-31.2f, 0f, 60.4f), Yaw(10f), 3, 4);
             EnvKit.Decor.TrainingDummy(d, V(-31.5f, 0f, 55.4f), Yaw(60f));

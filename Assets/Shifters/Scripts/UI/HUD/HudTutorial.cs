@@ -7,6 +7,10 @@
 //  centre the card DOCKS to the left column (under the objective memo + PiP, above the team cards) at 80 %
 //  scale, so it no longer covers the bar, its stamps or the world call-outs over the boss; while a big
 //  centre banner shows it DUCKS (fades out, auto-hide timer paused) and comes back when the banner is gone.
+//  Gamepad prompts (gp_core): Title/Body go through InputPrompts.Format ({Jump}, {kb:...}, {pad:...} tokens);
+//  Keys entries may be actions ("Jump") or legacy keyboard names ("WASD", "Space", "LShift", "TAB", "LMB", "G"):
+//  on keyboard they draw exactly as written, on a pad they become the action's pad button (duplicates merged,
+//  keyboard-only keys dropped). A visible card re-renders in place on ShiftersInput.DeviceChanged.
 // =====================================================================================
 using System.Collections.Generic;
 using TMPro;
@@ -99,7 +103,7 @@ namespace Shifters
             var skip = UIFactory.Rect("Skip", rt, new Vector2(1f, 0f), new Vector2(-18f, 12f), new Vector2(240f, 26f), new Vector2(1f, 0f));
             var skipText = UIFactory.Text(skip, "Text", "SKIP", FontLibrary.Label, 18f, UIColors.TextMuted, new Vector2(1f, 0.5f), Vector2.zero, new Vector2(60f, 24f), TextAlignmentOptions.Right, false, new Vector2(1f, 0.5f));
             skipText.characterSpacing = 4f;
-            var key = UIFactory.KeyCap(skip, "Backspace", 22f);
+            var key = UIFactory.ActionCap(skip, "SkipTutorial", 22f, "Backspace");
             key.anchorMin = key.anchorMax = new Vector2(1f, 0.5f); key.pivot = new Vector2(1f, 0.5f); key.anchoredPosition = new Vector2(-66f, 1f);
             t._timerTrack = UIFactory.Rect("Timer", rt, new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(Width - 40f, 5f), new Vector2(0.5f, 0f));
             UIFactory.Fill(t._timerTrack, "Bg", UISprites.Rounded(2), new Color(1f, 1f, 1f, 0.08f));
@@ -115,12 +119,45 @@ namespace Shifters
         {
             GameEvents.TutorialShow += Show;
             GameEvents.TutorialHide += Hide;
+            ShiftersInput.DeviceChanged += OnDeviceChanged;
         }
 
         void OnDestroy()
         {
             GameEvents.TutorialShow -= Show;
             GameEvents.TutorialHide -= Hide;
+            ShiftersInput.DeviceChanged -= OnDeviceChanged;
+        }
+
+        void OnDeviceChanged(bool gamepad)
+        {
+            if (_visible && _current != null) Render(_current, false);
+        }
+
+        /// <summary>Plain text currently shown in the body (formatted for the device).</summary>
+        public string BodyText => _body != null ? _body.text : "";
+        /// <summary>Texts of the key caps currently shown (tests).</summary>
+        public int KeyCount => _keys.Count;
+        public string KeyText(int i) => i >= 0 && i < _keys.Count && _keys[i] != null ? _keys[i].GetComponentInChildren<TMPro.TMP_Text>().text : null;
+
+        static readonly List<string> _padActions = new List<string>(8);
+
+        /// <summary>Pad mode: map Keys entries to actions; drop duplicates (W,A,S,D -> one LS), unknown names and
+        /// actions without a pad binding (Zoom). Slot keys 1/2/3 outside the switcher become the Switcher button
+        /// (D-DOWN): on a pad you reach a slot by opening the switcher, so a "1 2 3" card shows one D-DOWN cap.</summary>
+        static void PadActions(string[] keys, List<string> outActions)
+        {
+            outActions.Clear();
+            if (keys == null) return;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                string a = KeyLabels.ActionForKey(keys[i]);
+                if (a == null) { Debug.LogWarning("[HudTutorial] key '" + keys[i] + "' has no action: not shown on gamepad"); continue; }
+                if (string.IsNullOrEmpty(KeyLabels.Gamepad(a))) continue;
+                if (KeyLabels.PadSwitcherOnly(a) && ShiftersInput.Context != InputContext.Switcher) a = "Switcher";
+                if (outActions.Contains(a)) continue;
+                outActions.Add(a);
+            }
         }
 
         public void Clear() { _visible = false; _current = null; _rt.gameObject.SetActive(false); }
@@ -129,17 +166,25 @@ namespace Shifters
         {
             if (m == null) return;
             _current = m;
-            _title.text = string.IsNullOrEmpty(m.Title) ? "TIP" : m.Title.ToUpperInvariant();
-            _body.text = m.Body ?? "";
+            Render(m, true);
+        }
+
+        void Render(TutorialMessage m, bool fresh)
+        {
+            bool pad = ShiftersInput.UsingGamepad;
+            _title.text = string.IsNullOrEmpty(m.Title) ? "TIP" : InputPrompts.Format(m.Title, pad, false).ToUpperInvariant();
+            _body.text = InputPrompts.Format(m.Body ?? "", pad, true);
             for (int i = 0; i < _keys.Count; i++) if (_keys[i] != null) Destroy(_keys[i].gameObject);
             _keys.Clear();
-            bool hasKeys = m.Keys != null && m.Keys.Length > 0;
+            if (pad) PadActions(m.Keys, _padActions);
+            bool hasKeys = pad ? _padActions.Count > 0 : m.Keys != null && m.Keys.Length > 0;
             if (hasKeys)
             {
                 float total = 0f;
-                foreach (var k in m.Keys)
+                int n = pad ? _padActions.Count : m.Keys.Length;
+                for (int k = 0; k < n; k++)
                 {
-                    var cap = UIFactory.KeyCap(_keysRow, k, 40f);
+                    var cap = pad ? UIFactory.PadCap(_keysRow, KeyLabels.Gamepad(_padActions[k]), 40f) : UIFactory.KeyCap(_keysRow, m.Keys[k], 40f);
                     _keys.Add(cap);
                     total += cap.sizeDelta.x + 10f;
                 }
@@ -150,13 +195,14 @@ namespace Shifters
                     cap.anchorMin = cap.anchorMax = new Vector2(0.5f, 0.5f); cap.pivot = new Vector2(0f, 0.5f);
                     cap.anchoredPosition = new Vector2(x, 0f);
                     x += cap.sizeDelta.x + 10f;
-                    UITween.Scale(cap, 1f, 0.35f, Ease.OutBack, 0.15f + i * 0.05f, 0f);
+                    if (fresh) UITween.Scale(cap, 1f, 0.35f, Ease.OutBack, 0.15f + i * 0.05f, 0f);
                 }
             }
             float bodyH = Mathf.Max(34f, UIFactory.Preferred(_body, _body.text, Width - 70f).y);
             _body.rectTransform.sizeDelta = new Vector2(Width - 70f, bodyH);
             float height = 76f + bodyH + (hasKeys ? 64f : 14f) + 40f;
             _rt.sizeDelta = new Vector2(Width, height);
+            if (!fresh) return;   // device switch: content re-rendered in place (timer, position, fade untouched)
             _duration = m.Important ? 0f : Mathf.Max(0f, m.Duration);
             _elapsed = 0f;
             _timerTrack.gameObject.SetActive(_duration > 0f);

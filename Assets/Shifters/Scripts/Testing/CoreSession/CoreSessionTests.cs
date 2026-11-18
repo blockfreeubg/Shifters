@@ -229,7 +229,7 @@ namespace Shifters
             ctx.Check(ShiftersInput.KeyLabelKeyboard("Interact") == "E" && ShiftersInput.KeyLabelKeyboard("grab") == "F" && ShiftersInput.KeyLabelKeyboard("Throw") == "Q" &&
                       ShiftersInput.KeyLabelKeyboard("Switcher") == "RShift" && ShiftersInput.KeyLabelKeyboard("Fire") == "LMB" && ShiftersInput.KeyLabelKeyboard("Jump") == "Space" &&
                       ShiftersInput.KeyLabelKeyboard("SkipTutorial") == "Backspace" && ShiftersInput.KeyLabelKeyboard("Frobnicate") == "Frobnicate", "input: keyboard KeyLabels");
-            ctx.Check(ShiftersInput.KeyLabelGamepad("Interact") == "X" && ShiftersInput.KeyLabelGamepad("Jump") == "A" && ShiftersInput.KeyLabelGamepad("Switcher") == "D-Down" &&
+            ctx.Check(ShiftersInput.KeyLabelGamepad("Interact") == "X" && ShiftersInput.KeyLabelGamepad("Jump") == "A" && ShiftersInput.KeyLabelGamepad("Switcher") == "D-DOWN" &&
                       ShiftersInput.KeyLabelGamepad("Fire") == "RT" && ShiftersInput.KeyLabelGamepad("Pause") == "Start", "input: gamepad KeyLabels");
 
             // allocation check: 2000 frames worth of polling

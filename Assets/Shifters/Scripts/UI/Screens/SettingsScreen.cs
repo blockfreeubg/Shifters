@@ -48,7 +48,9 @@ namespace Shifters
             Add(p0, 0, UISettingRow.CreateSlider(p0, "MASTER VOLUME", 0f, 1f, s.MasterVolume, false, Pct, v => { SessionActions.Settings.MasterVolume = v; Apply(); }), ref y);
             Add(p0, 0, UISettingRow.CreateSlider(p0, "MUSIC VOLUME", 0f, 1f, s.MusicVolume, false, Pct, v => { SessionActions.Settings.MusicVolume = v; Apply(); }), ref y);
             Add(p0, 0, UISettingRow.CreateSlider(p0, "SFX VOLUME", 0f, 1f, s.SfxVolume, false, Pct, v => { SessionActions.Settings.SfxVolume = v; Apply(); Sfx.Play(SfxId.UIHover, 0.8f); }), ref y);
-            Add(p0, 0, UISettingRow.CreateSlider(p0, "MOUSE SENSITIVITY", 0.2f, 3f, s.MouseSensitivity, false, v => v.ToString("0.0") + "x", v => { SessionActions.Settings.MouseSensitivity = v; Apply(); }), ref y);
+            var sens = UISettingRow.CreateSlider(p0, "MOUSE SENSITIVITY", 0.2f, 3f, s.MouseSensitivity, false, v => v.ToString("0.0") + "x", v => { SessionActions.Settings.MouseSensitivity = v; Apply(); });
+            DevicePromptText.AttachInChildren(sens.transform.parent.gameObject, "{kb:MOUSE}{pad:LOOK} SENSITIVITY", false);   // slider rows: component on the track, label on its parent. Scales mouse AND right-stick look; Label stays the row key
+            Add(p0, 0, sens, ref y);
             Add(p0, 0, UISettingRow.CreateOption(p0, "INVERT Y", OnOff, s.InvertY ? 1 : 0, i => { SessionActions.Settings.InvertY = i == 1; Apply(); }), ref y);
             Add(p0, 0, UISettingRow.CreateSlider(p0, "FIELD OF VIEW", 50f, 90f, s.Fov, true, v => Mathf.RoundToInt(v) + "°", v => { SessionActions.Settings.Fov = v; Apply(); }), ref y);
             Add(p0, 0, UISettingRow.CreateOption(p0, "SWITCH CAMERA", new[] { "FAST", "CINEMATIC" }, s.CinematicSwitch ? 1 : 0, i => { SessionActions.Settings.CinematicSwitch = i == 1; Apply(); }), ref y);

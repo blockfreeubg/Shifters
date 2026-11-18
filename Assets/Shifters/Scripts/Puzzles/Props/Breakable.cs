@@ -26,12 +26,15 @@ namespace Shifters
 
         public bool IsBroken => IsOn;
 
+        // gamepad prompts: {Interact} = E / X, formatted per refresh (cached per device) so the chip follows the device
+        const string PunchLabel = "CRACKED WALL - PUNCH IT ({Interact})";
+
         void Start()
         {
             if (Reveal == null) return;
             if (Kind == BreakableKind.Glass) Reveal.DynamicLabel = v => IsBroken ? "" : "SHOOT TO BREAK";
             else Reveal.DynamicLabel = v => IsBroken ? "" : v != null && v.Stats != null && v.Stats.Strength >= RequiredStrength
-                ? "CRACKED WALL - PUNCH IT (E)" : "CRACKED WALL - NEEDS STR " + RequiredStrength;
+                ? InputPrompts.Format(PunchLabel) : "CRACKED WALL - NEEDS STR " + RequiredStrength;
         }
         public int Hits { get; private set; }
         float _lastDenied;

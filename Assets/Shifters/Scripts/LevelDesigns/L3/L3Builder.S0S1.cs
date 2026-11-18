@@ -26,7 +26,7 @@ namespace Shifters
 
             ctx.SetSpawn(new Vector3(0f, 0f, -4.5f), 0f);
             ctx.Tutorial(new Vector3(0f, 1.5f, -3f), new Vector3(13f, 3f, 9f), "l3_bots", "SECURITY BOTS",
-                "Security bots chase the closest intern. Press T to taunt and distract them. Or throw a teammate at them.",
+                "Security bots chase the closest intern. Press {Taunt} to taunt and distract them. Or throw a teammate at them.",
                 new[] { "T", "F", "Q" }, true);
 
             // decontamination showers + flavour
@@ -69,7 +69,7 @@ namespace Shifters
             Block(g, 6.5f, 10f, 14.1f, 37f, 2f);
             EnvKit.Stairs(g, new Vector3(8.25f, 0f, 10.3f), Vector3.forward, 3.5f, 0.2f, 0.38f, 10);
             var prow1 = new Vector3(3.5f, 0f, 27f);
-            LureProw(g, ctx.Decor, prow1, -1f, "TAUNT\nHERE (T)");
+            LureProw(g, ctx.Decor, prow1, -1f, "TAUNT\nHERE ({TAUNT})");
             RailingAroundProw(g, 6.5f, 14.1f, 37f, prow1, -1f);
             ctx.Label(ctx.Decor, new Vector3(1.0f, 0.02f, 27f), Quaternion.Euler(90f, 90f, 0f), "BONK-BOT QUEUE", 0.32f, UIColors.AccentYellow, 5f);
             Sign(ctx.Decor, new Vector3(4.51f, 1.0f, 25.91f), -135f, "ROBOTS CAN'T CLIMB (WE CHECKED)", 2.6f, 0.5f, SignStyle.Warning);
@@ -157,13 +157,13 @@ namespace Shifters
 
             // ---------------------------------------------------------------- hints / tutorials / perspective
             ctx.Hint(new Vector3(0f, 2f, 20f), new Vector3(20f, 5f, 22f),
-                "One intern climbs the SECURITY GALLERY and taunts (T) from the pulpit: the bot can't climb, so it waits below while the others cross to the 40 KG plate. Then extend the catwalk from the far landing.",
+                "One intern climbs the SECURITY GALLERY and taunts ({Taunt}) from the pulpit: the bot can't climb, so it waits below while the others cross to the 40 KG plate. Then extend the catwalk from the far landing.",
                 "Robots can't climb. Someone should stand somewhere high and be extremely annoying.");
             ctx.Hint(new Vector3(0f, 2f, 40f), new Vector3(20f, 5f, 12f),
                 "Stand on the plate for 1 second to latch the door. Captured? Pull CELL RELEASE on the gallery.",
                 "Plates like company. Cells like levers.");
             ctx.Tutorial(new Vector3(8.25f, 3f, 17f), new Vector3(3.5f, 3f, 5f), "l3_highground", "HIGH GROUND",
-                "Bots can't climb. Taunt (T) from the pulpit and they'll wait below, beeping furiously.", new[] { "T" });
+                "Bots can't climb. Taunt ({Taunt}) from the pulpit and they'll wait below, beeping furiously.", new[] { "T" });
             ctx.Tutorial(new Vector3(-5f, 1.5f, 17f), new Vector3(3f, 3f, 5f), "l3_cells", "DETENTION",
                 "Captured interns go to a holding cell. A free teammate can pull its release lever. Captures are temporary. Probably.", new[] { "E" });
             PerspectiveKit.Clue(ctx.Decor, new Vector3(-9.78f, 2.6f, 24f), Yaw(-90f), "BOTS REACH 1.3 M UP. GALLERY: 2.0 M. MATH.", 0.32f);

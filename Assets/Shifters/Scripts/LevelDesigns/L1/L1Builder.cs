@@ -84,6 +84,10 @@ namespace Shifters
             return EnvKit.Sign(p, pos, Yaw(yaw + 180f), text, new Vector2(w, h), style);
         }
 
+        // gamepad prompts (integrator2, gamepad1): world-text templates whose key names follow the device (DevicePromptText)
+        const string HowToShift = "HOW TO SHIFT:\n1. PANIC\n2. PRESS {Switcher|SHIFT}\n3. PANIC LESS";
+        const string ShiftHappens = "ESPECIALLY WHEN YOU PRESS {Switcher|RIGHT SHIFT}";
+
         /// <summary>Corporate poster facing yaw (same convention as <see cref="Sign"/>).</summary>
         GameObject Poster(Transform p, Vector3 pos, float yaw, string title, string sub, float scale = 1f)
         {
@@ -92,7 +96,7 @@ namespace Shifters
         }
 
         /// <summary>Text painted on the floor, readable by someone walking toward +yaw.</summary>
-        void FloorText(Transform p, Vector3 pos, float yaw, string text, float h, Color c, float maxW = 8f)
+        TMPro.TextMeshPro FloorText(Transform p, Vector3 pos, float yaw, string text, float h, Color c, float maxW = 8f)
             => _ctx.Label(p, pos + Vector3.up * 0.015f, Quaternion.Euler(90f, yaw, 0f), text, h, c, maxW);
 
         /// <summary>Overhead gantry: two pillars and a big sign readable from -Z (players walking +Z).</summary>

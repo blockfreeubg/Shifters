@@ -63,7 +63,7 @@ namespace Shifters
             _picking = true; _switched = false; _t = 0f;
             _ctxBefore = ShiftersInput.Context;
             ShiftersInput.Context = InputContext.Gameplay;   // the switcher (RIGHT SHIFT, 1/2/3) needs Gameplay/Switcher
-            GameEvents.RaisePrompt(PromptInfo.Make("RIGHT SHIFT", string.IsNullOrEmpty(text) ? "WHO RULES TODAY?" : text));
+            GameEvents.RaisePrompt(PromptInfo.Make("{Switcher|RIGHT SHIFT}", string.IsNullOrEmpty(text) ? "WHO RULES TODAY?" : text));
         }
 
         void OnAuto(string id)

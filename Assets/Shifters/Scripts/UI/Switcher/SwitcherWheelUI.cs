@@ -35,6 +35,10 @@ namespace Shifters
         public bool IsOpen => _open;
         public int Highlight => _highlight;
         public SwitcherCard Card(int slot) => slot >= 0 && slot < 3 ? _cards[slot] : null;
+        /// <summary>Big hub text as drawn: the highlighted slot's key ("1".."3" on keyboard, the switcher pad
+        /// binding e.g. "D-UP" on a gamepad = the card cap), or "SHIFT" with nothing highlighted (tests).</summary>
+        public string HubLabelText => _hubLabel != null ? _hubLabel.text : "";
+        public float HubLabelFontSize => _hubLabel != null ? _hubLabel.fontSize : 0f;
 
         public static SwitcherWheelUI Create(Transform parent)
         {
@@ -52,7 +56,11 @@ namespace Shifters
             return w;
         }
 
-        void OnDestroy() { if (Instance == this) Instance = null; }
+        void OnDestroy()
+        {
+            ShiftersInput.DeviceChanged -= OnDeviceChanged;
+            if (Instance == this) Instance = null;
+        }
 
         void Build()
         {
@@ -102,21 +110,65 @@ namespace Shifters
             BuildFooter();
         }
 
+        RectTransform _footer;
+        bool _footerBuilt, _footerPad;
+
+        /// <summary>True when the footer currently shows the gamepad controls (tests).</summary>
+        public bool FooterShowsGamepad => _footerBuilt && _footerPad;
+
+        // Subscribed for the wheel's whole life (not only while open) so the sleeping wheel never holds stale
+        // keyboard hints (scene audits read inactive UI too); OnEnable re-checks in case an event was missed.
+        void Awake() => ShiftersInput.DeviceChanged += OnDeviceChanged;
+
+        void OnEnable() { if (_footerBuilt) BuildFooter(); ApplyHubKey(); }
+
+        void OnDeviceChanged(bool gamepad) { BuildFooter(); ApplyHubKey(); }
+
+        /// <summary>Control hints under the wheel, for the device the player uses (gp_ui). Keyboard (unchanged):
+        /// [1][2][3] OR MOUSE SELECT · [ENTER]/[LMB] SWITCH · [ESC] CANCEL. Gamepad (switcher bindings):
+        /// [D-LEFT][D-UP][D-RIGHT] OR STICK SELECT · [A] SWITCH · [B] CANCEL. Rebuilt on a device switch.</summary>
         void BuildFooter()
         {
+            bool pad = ShiftersInput.UsingGamepad;
+            if (_footerBuilt && pad == _footerPad && _footer != null) return;
+            if (_footer != null) { _footer.gameObject.SetActive(false); Destroy(_footer.gameObject); }
+            _footerBuilt = true; _footerPad = pad;
             var row = UIFactory.Rect("Footer", _rt, new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(1400f, 50f), new Vector2(0.5f, 0f));
+            _footer = row;
             var bg = UIFactory.Image(row, "Bg", UISprites.Rounded(25), new Color(0.04f, 0.05f, 0.07f, 0.85f));
             UIFactory.Stretch(bg.rectTransform);
             float x = 24f;
-            x = Key(row, "1", x); x = Key(row, "2", x); x = Key(row, "3", x);
-            x = Words(row, "OR MOUSE  SELECT", x);
-            x = Sep(row, x);
-            x = Key(row, "Enter", x); x = Words(row, "/", x - 4f); x = Key(row, "LMB", x - 4f);
-            x = Words(row, "SWITCH", x);
-            x = Sep(row, x);
-            x = Key(row, "Esc", x);
-            x = Words(row, "CANCEL", x);
+            if (!pad)
+            {
+                x = Key(row, "1", x); x = Key(row, "2", x); x = Key(row, "3", x);
+                x = Words(row, "OR MOUSE  SELECT", x);
+                x = Sep(row, x);
+                x = Key(row, "Enter", x); x = Words(row, "/", x - 4f); x = Key(row, "LMB", x - 4f);
+                x = Words(row, "SWITCH", x);
+                x = Sep(row, x);
+                x = Key(row, "Esc", x);
+                x = Words(row, "CANCEL", x);
+            }
+            else
+            {
+                x = Pad(row, "Select1", x); x = Pad(row, "Select2", x); x = Pad(row, "Select3", x);
+                x = Words(row, "OR STICK  SELECT", x);
+                x = Sep(row, x);
+                x = Pad(row, "Confirm", x);
+                x = Words(row, "SWITCH", x);
+                x = Sep(row, x);
+                x = Pad(row, "Cancel", x);
+                x = Words(row, "CANCEL", x);
+            }
             row.sizeDelta = new Vector2(x + 14f, 50f);
+        }
+
+        static float Pad(RectTransform row, string action, float x)
+        {
+            var cap = UIFactory.PadCap(row, KeyLabels.Gamepad(action), 32f);
+            cap.anchorMin = cap.anchorMax = new Vector2(0f, 0.5f); cap.pivot = new Vector2(0f, 0.5f);
+            cap.anchoredPosition = new Vector2(x, 1f);
+            return x + cap.sizeDelta.x + 8f;
         }
 
         static float Key(RectTransform row, string k, float x)
@@ -222,8 +274,7 @@ namespace Shifters
             {
                 _needleTarget = CharacterSwitcher.SlotAngles[slot];
                 var c = _cards[slot];
-                _hubLabel.text = (slot + 1).ToString();
-                _hubLabel.fontSize = 64f;
+                ApplyHubKey();
                 _hubLabel.color = c.Available ? UIColors.AccentYellow : UIColors.Danger;
                 _hubSub.text = c.Available ? (c.Character.IsActive ? "STAY AS YOU" : "SHIFT TO") : "UNAVAILABLE";
                 _hubSub.rectTransform.anchoredPosition = new Vector2(0f, -38f);
@@ -241,6 +292,39 @@ namespace Shifters
                 _hubSub.rectTransform.anchoredPosition = new Vector2(0f, -24f);
                 _hubRing.color = UIColors.Accent;
             }
+        }
+
+        const float HubKeySize = 64f, HubKeyMinSize = 24f, HubKeyMaxW = 144f;   // inner chord of the 176 disc (ring 10) at y=14
+
+        /// <summary>Hub key text for the highlighted slot, per device: keyboard keeps the slot number ("3");
+        /// a gamepad shows that slot's switcher binding (KeyLabels Select1..3 = D-LEFT/D-UP/D-RIGHT, the same
+        /// label as the card cap), on one line at one size for all three slots (the widest label fits the disc,
+        /// so the hub does not jump in size while flicking). Re-run on DeviceChanged (open or asleep).</summary>
+        void ApplyHubKey()
+        {
+            if (_hubLabel == null || _highlight < 0 || _highlight > 2 || _cards[_highlight] == null || _cards[_highlight].Character == null) return;
+            string num = (_highlight + 1).ToString();
+            string label = num;
+            float size = HubKeySize;
+            _hubLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            _hubLabel.fontSize = HubKeySize;
+            if (ShiftersInput.UsingGamepad)
+            {
+                string pad = KeyLabels.Gamepad("Select" + num);
+                if (!string.IsNullOrEmpty(pad))
+                {
+                    label = pad.ToUpperInvariant();
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        string l = KeyLabels.Gamepad("Select" + i);
+                        float w = string.IsNullOrEmpty(l) ? 0f : UIFactory.Preferred(_hubLabel, l.ToUpperInvariant()).x;
+                        if (w > HubKeyMaxW) size = Mathf.Min(size, Mathf.Floor(HubKeySize * HubKeyMaxW / w));
+                    }
+                    size = Mathf.Max(HubKeyMinSize, size);
+                }
+            }
+            _hubLabel.fontSize = size;
+            _hubLabel.text = label;
         }
 
         /// <summary>Error feedback for an unavailable slot (CharacterSwitcher may call this on a refused confirm).</summary>

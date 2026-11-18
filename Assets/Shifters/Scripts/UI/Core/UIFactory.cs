@@ -226,15 +226,35 @@ namespace Shifters
         }
 
         // ------------------------------------------------------------------ widgets
-        /// <summary>Keyboard key cap ("E", "RShift", "1"...). Width grows with the text. Pivot center.</summary>
+        /// <summary>Keyboard key cap ("E", "RShift", "1"...). Width grows with the text. Pivot center. Static (never changes
+        /// with the device): for a cap that follows the player's device use <see cref="ActionCap"/>.</summary>
         public static RectTransform KeyCap(Transform parent, string key, float height = 40f, Vector2? pos = null)
+            => DeviceStyledCap(parent, key, false, height, pos);
+
+        /// <summary>Static GAMEPAD-styled cap for a pad label ("A" round green, "RB" dark labelled cap...).</summary>
+        public static RectTransform PadCap(Transform parent, string padLabel, float height = 40f, Vector2? pos = null)
+            => DeviceStyledCap(parent, padLabel, true, height, pos);
+
+        /// <summary>Live cap for an ACTION ("Jump", "SkipTutorial"...) or a legacy keyboard key name ("Space", "LShift", "TAB"):
+        /// shows <paramref name="keyboardText"/> (default: the legacy key name as written, else the action's keyboard label)
+        /// as the classic key cap on keyboard/mouse and the action's gamepad button on a pad, restyling live
+        /// (<see cref="DeviceKeyCap"/>; listen to its Resized when caps are laid out side by side).</summary>
+        public static RectTransform ActionCap(Transform parent, string action, float height = 40f, string keyboardText = null, Vector2? pos = null)
         {
-            key = string.IsNullOrEmpty(key) ? "?" : key.ToUpperInvariant();
-            float fs = height * 0.56f;
-            var root = Rect("Key_" + key, parent);
-            var label = Text(root, "Label", key, FontLibrary.Label, fs, UIColors.Hex(0x161B22), TextAlignmentOptions.Center);
-            float w = Mathf.Max(height, Preferred(label, key).x + height * 0.55f);
-            root.sizeDelta = new Vector2(w, height);
+            string act = KeyLabels.ActionForKey(action);
+            string kb = keyboardText ?? (KeyLabels.IsKeyName(action) || act == null ? action : KeyLabels.Keyboard(act));
+            var root = DeviceStyledCap(parent, kb, false, height, pos);
+            var cap = root.gameObject.AddComponent<DeviceKeyCap>();
+            cap.Init(act, kb, height);
+            return root;
+        }
+
+        static RectTransform DeviceStyledCap(Transform parent, string key, bool gamepad, float height, Vector2? pos)
+        {
+            string name = string.IsNullOrEmpty(key) ? "?" : key.ToUpperInvariant();
+            var root = Rect("Key_" + name, parent);
+            var label = Text(root, "Label", name, FontLibrary.Label, height * 0.56f, UIColors.Hex(0x161B22), TextAlignmentOptions.Center);
+            root.sizeDelta = new Vector2(height, height);
             if (pos.HasValue) root.anchoredPosition = pos.Value;
             var depth = Fill(root, "Depth", UISprites.Rounded(8), UIColors.Hex(0x7D8796));
             depth.rectTransform.offsetMin = new Vector2(0f, -4f); depth.rectTransform.offsetMax = new Vector2(0f, -2f);
@@ -242,7 +262,52 @@ namespace Shifters
             face.rectTransform.offsetMin = new Vector2(0f, 2f);
             label.transform.SetAsLastSibling();
             Stretch(label.rectTransform, 2f, 2f, 0f, 2f);
+            StyleCap(root, string.IsNullOrEmpty(key) ? "?" : key, gamepad, height);
             return root;
+        }
+
+        /// <summary>(Re)style a cap built by KeyCap/PadCap/ActionCap: keyboard = light key cap (classic), gamepad = Xbox-coloured
+        /// round face button (A/B/X/Y) or dark labelled cap. Empty text hides the cap graphics. Updates the width.</summary>
+        public static void StyleCap(RectTransform root, string text, bool gamepad, float height)
+        {
+            if (root == null) return;
+            var label = root.Find("Label")?.GetComponent<TMP_Text>();
+            var depth = root.Find("Depth")?.GetComponent<Image>();
+            var face = root.Find("Face")?.GetComponent<Image>();
+            if (label == null || depth == null || face == null) return;
+            bool show = !string.IsNullOrEmpty(text);
+            label.enabled = depth.enabled = face.enabled = show;
+            if (!show) return;
+            string t = text.ToUpperInvariant();
+            label.text = t;
+            float w;
+            if (!gamepad)
+            {
+                depth.sprite = UISprites.Rounded(8); depth.type = UnityEngine.UI.Image.Type.Sliced; depth.color = UIColors.Hex(0x7D8796);
+                face.sprite = UISprites.Rounded(8); face.type = UnityEngine.UI.Image.Type.Sliced; face.color = UIColors.Hex(0xEEF1F5);
+                label.color = UIColors.Hex(0x161B22);
+                label.fontSize = height * 0.56f;
+                w = Mathf.Max(height, Preferred(label, t).x + height * 0.55f);
+            }
+            else if (InputPrompts.IsFaceButton(t, out var fc))
+            {
+                depth.sprite = UISprites.Circle; depth.type = UnityEngine.UI.Image.Type.Simple; depth.color = Color.Lerp(fc, Color.black, 0.5f);
+                face.sprite = UISprites.Circle; face.type = UnityEngine.UI.Image.Type.Simple; face.color = fc;
+                label.color = t == "Y" ? UIColors.Hex(0x161B22) : Color.white;
+                label.fontSize = height * 0.6f;
+                w = height;
+            }
+            else
+            {
+                int r = Mathf.Clamp(Mathf.RoundToInt(height * 0.4f), 6, 20);
+                depth.sprite = UISprites.Rounded(r); depth.type = UnityEngine.UI.Image.Type.Sliced; depth.color = UIColors.Hex(0x12161C);
+                face.sprite = UISprites.Rounded(r); face.type = UnityEngine.UI.Image.Type.Sliced; face.color = UIColors.Hex(0x4A5465);
+                label.color = UIColors.Hex(0xF2F4F8);
+                label.fontSize = height * 0.5f;
+                w = Mathf.Max(height * 1.15f, Preferred(label, t).x + height * 0.6f);
+            }
+            root.sizeDelta = new Vector2(w, height);
+            root.name = "Key_" + t;
         }
 
         /// <summary>Pill chip with optional icon + text. filled = solid color bg with dark text, else dark bg with colored border.</summary>

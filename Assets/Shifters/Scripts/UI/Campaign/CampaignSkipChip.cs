@@ -2,6 +2,8 @@
 //  SHIFTERS - CampaignSkipChip.cs   (ui_hud agent)
 //  "HOLD [BACKSPACE] TO SKIP" chip with a hold-progress fill (ShiftersInput.SkipHeld01 via
 //  CampaignHudCompat). Bottom-right, inside the letterbox bar; visible in blocking scenes.
+//  The key is a live ActionCap (gp_core): BACKSPACE on keyboard/mouse, the pad's BACK button on a gamepad;
+//  the row re-centres when the cap width changes.
 // =====================================================================================
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +23,10 @@ namespace Shifters
         RectTransform _fill;
         Image _fillImg;
         float _shownFor;
+        TextMeshProUGUI _hold, _skip;
+        RectTransform _key;
+        /// <summary>Key cap text as displayed ("BACKSPACE" / "BACK").</summary>
+        public string KeyText => _key != null ? _key.GetComponent<DeviceKeyCap>().Text : "";
 
         public static CampaignSkipChip Create(Transform parent)
         {
@@ -42,11 +48,19 @@ namespace Shifters
             _fill.anchorMin = new Vector2(0f, 0f); _fill.anchorMax = new Vector2(0f, 1f); _fill.pivot = new Vector2(0f, 0.5f);
             _fill.offsetMin = Vector2.zero; _fill.offsetMax = Vector2.zero;
             UIFactory.Fill(Rt, "Border", UISprites.RoundedOutline(25, 2), new Color(1f, 1f, 1f, 0.35f));
-            var hold = UIFactory.Text(Rt, "Hold", "HOLD", FontLibrary.Label, 22f, UIColors.Text, TextAlignmentOptions.Right);
-            hold.characterSpacing = 4f;
-            var key = UIFactory.KeyCap(Rt, "BACKSPACE", 34f);
-            var skip = UIFactory.Text(Rt, "Skip", "TO SKIP", FontLibrary.Label, 22f, UIColors.Text, TextAlignmentOptions.Left);
-            skip.characterSpacing = 4f;
+            _hold = UIFactory.Text(Rt, "Hold", "HOLD", FontLibrary.Label, 22f, UIColors.Text, TextAlignmentOptions.Right);
+            _hold.characterSpacing = 4f;
+            _key = UIFactory.ActionCap(Rt, "SkipTutorial", 34f, "BACKSPACE");
+            _key.GetComponent<DeviceKeyCap>().Resized += _ => Layout();
+            _skip = UIFactory.Text(Rt, "Skip", "TO SKIP", FontLibrary.Label, 22f, UIColors.Text, TextAlignmentOptions.Left);
+            _skip.characterSpacing = 4f;
+            Layout();
+        }
+
+        void Layout()
+        {
+            var hold = _hold; var skip = _skip; var key = _key;
+            if (hold == null || skip == null || key == null) return;
             float hw = UIFactory.Preferred(hold, "HOLD").x + 4f, sw = UIFactory.Preferred(skip, "TO SKIP").x + 4f, kw = key.sizeDelta.x;
             float total = hw + 12f + kw + 12f + sw;
             float x = (W - total) * 0.5f;

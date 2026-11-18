@@ -429,8 +429,8 @@ namespace Shifters
             _ctx.Hint(V(-11.5f, 2f, 10.5f), V(9f, 4f, 7f), "The smart one stands by the shelf; another hops on their head and climbs up. Bring the Books to tray B.", "Teams are taller than people.");
             _ctx.Hint(V(-12.5f, 2f, 19f), V(7f, 4f, 5f), "Only a big brain (IQ 7+) opens the evidence locker.", "Laundry day. Ask the smart one.");
             _ctx.Hint(V(12f, 2f, 22f), V(8f, 5f, 16f), "Climb his words to the press gallery and press MUTE. Jump the dramatic pause.", "His lies are stairs.");
-            _ctx.Hint(V(0f, 2f, 25.5f), V(16f, 4f, 4f), "One intern per voter plate (G = stay), then AYE, SHIFT, AYE, SHIFT, AYE within 5 s.", "All in favor? All of you.");
-            _ctx.Hint(V(0f, 2.5f, 38.5f), V(10f, 4f, 5f), "Everybody sits on the bench (E). All three.", "Take a seat. Together.");
+            _ctx.Hint(V(0f, 2f, 25.5f), V(16f, 4f, 4f), "One intern per voter plate ({AIMode} = stay), then AYE, SHIFT, AYE, SHIFT, AYE within 5 s.", "All in favor? All of you.");
+            _ctx.Hint(V(0f, 2.5f, 38.5f), V(10f, 4f, 5f), "Everybody sits on the bench ({Interact}). All three.", "Take a seat. Together.");
         }
     }
 }

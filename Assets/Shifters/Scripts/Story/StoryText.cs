@@ -217,7 +217,17 @@ namespace Shifters
                 case "BRUTE": case "SPRINTER": case "BRAINIAC": case "GUNNER": case "CATCHER": case "CLONE":
                 case "ACTIVE": case "PRESIDENT": case "NAME": case "CHAPTER": case "RESCUED": case "VICTIM": return true;
             }
-            return false;
+            return IsInputPromptToken(t);
+        }
+
+        /// <summary>Device-aware control tokens (InputPrompts, gp_ui): "{Switcher|RIGHT SHIFT}", "{JUMP}", "{kb:...}", "{pad:...}".
+        /// Resolve leaves them as written; the HUD (HudPrompt / DevicePromptText) formats them for the player's device.</summary>
+        static bool IsInputPromptToken(string t)
+        {
+            if (string.IsNullOrEmpty(t)) return false;
+            if (t.StartsWith("KB:", StringComparison.OrdinalIgnoreCase) || t.StartsWith("PAD:", StringComparison.OrdinalIgnoreCase)) return true;
+            int bar = t.IndexOf('|');
+            return KeyLabels.Canonical(bar >= 0 ? t.Substring(0, bar) : t) != null;
         }
 
         // ---- speakers

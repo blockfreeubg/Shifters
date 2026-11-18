@@ -71,7 +71,7 @@ namespace Shifters
                     if (_clock >= chip.NextRefresh)
                     {
                         chip.NextRefresh = _clock + TextRefresh;
-                        chip.SetText(c.R.GetLabel(viewer), PerspectiveStyle.FirstShared(c.R.Category, pm.Current));
+                        chip.SetText(InputPrompts.Format(c.R.GetLabel(viewer)), PerspectiveStyle.FirstShared(c.R.Category, pm.Current));
                     }
                     if (string.IsNullOrEmpty(chip.CurrentText)) continue; // assigned but empty (hidden) - re-evaluated 4x/s
 

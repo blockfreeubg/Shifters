@@ -102,7 +102,7 @@ namespace Shifters
             t.Active = true;
             t.Leaving = false;
             t.Until = UITime.Now + Life;
-            t.Text.text = text;
+            DevicePromptText.Attach(t.Text, text);   // gp_ui: control tokens render for the device, live while shown
             Color barColor = color.a < 0.05f ? UIColors.Accent : color;
             bool neutral = Mathf.Abs(color.r - UIColors.Text.r) < 0.02f && Mathf.Abs(color.g - UIColors.Text.g) < 0.02f;
             t.Bar.color = neutral ? UIColors.Accent : barColor;

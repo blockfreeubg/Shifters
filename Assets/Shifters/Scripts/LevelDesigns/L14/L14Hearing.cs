@@ -710,7 +710,7 @@ namespace Shifters
             Phase = HearingPhase.Bench; _t = 0f;
             LogEvent("bench.open");
             for (int i = 0; i < Seats.Length; i++) if (Seats[i] != null) Seats[i].Open = true;
-            ShowTutorial("ch14_bench", "BENCH FOR THREE", "BENCH FOR THREE: everybody sit down (E). Rulers sit together.", false);
+            ShowTutorial("ch14_bench", "BENCH FOR THREE", "BENCH FOR THREE: everybody sit down ({Interact}). Rulers sit together.", false);
         }
 
         // ================================================================== S4 THE BENCH -> C15

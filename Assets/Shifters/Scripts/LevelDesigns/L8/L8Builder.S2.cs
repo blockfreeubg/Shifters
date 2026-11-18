@@ -94,8 +94,8 @@ namespace Shifters
             Sign(d, V(9.75f, 3.95f, 76.98f), Vector3.back, "TIME-LOCK GALLERY  -  KEY 3", 4.2f, 0.55f);
             FloorLabel(d, V(0f, 3f, 73.4f), "TURBO JUMP OR BRIDGE  >>", 0.28f, Teal, -90f, 3f);
             ctx.Tutorial(V(0f, 1.5f, 57.8f), V(9f, 3f, 6f), "ch07_keys", "THE THREE-KEY TURN",
-                         "Like in the movies: all three keys within 5 seconds. You are three people. Act like it.", new[] { "G", "E", "SHIFT" }, true);
-            ctx.Hint(V(5f, 1.5f, 62f), V(8f, 3f, 7f), "Park everyone on a key pad, then press E, SHIFT, E, SHIFT, E.", "Three keys, three people.");
+                         "Like in the movies: all three keys within 5 seconds. You are three people. Act like it.", new[] { "G", "E", "RShift" }, true);
+            ctx.Hint(V(5f, 1.5f, 62f), V(8f, 3f, 7f), "Park everyone on a key pad, then {kb:press {Interact}, SHIFT, {Interact}, SHIFT, {Interact}.}{pad:press {Interact} on each pad in turn, SHIFTing between them with {Switcher}.}", "Three keys, three people.");
             var teamPos = OnCircle(c, 15.75f, -62f, 3.0f);
             var toward = -(teamPos - V(0f, teamPos.y, c.z)).normalized;
             Sign(d, teamPos, toward, "THE COMBINATION IS A TEAM EFFORT", 3.6f, 0.8f);

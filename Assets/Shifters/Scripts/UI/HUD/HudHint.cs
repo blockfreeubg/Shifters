@@ -46,7 +46,7 @@ namespace Shifters
         public void Show(string text)
         {
             if (string.IsNullOrEmpty(text)) return;
-            _text.text = text;
+            DevicePromptText.Attach(_text, text);   // gp_ui: control tokens ("press {Scan}") render for the device, live
             _hideAt = UITime.Now + ShowSeconds;
             UITween.Fade(_group, 1f, 0.2f);
             UITween.Move(_rt, new Vector2(-26f, 150f), 0.35f, Ease.OutBack, 0f, new Vector2(80f, 150f));

@@ -556,7 +556,7 @@ namespace Shifters
                 Kit.BoxVisual(t, "PosterLeg", new Vector3(-9.78f, UpperY + 0.42f, 184f + s * 0.42f), new Vector3(0.08f, 0.84f, 0.08f), MatKey.MetalDark, 0.01f);
 
             _ctx.Tutorial(new Vector3(-2.8f, UpperY + 1.5f, 192f), new Vector3(14f, 4f, 6f), "l5_pod", "ESCAPE POD",
-                "MAX 200 KG. Together you weigh more than that. Two can sit inside, the third rides on the ROOF via the maintenance shaft... or you press E on the console and leave someone behind.", null, true);
+                "MAX 200 KG. Together you weigh more than that. Two can sit inside, the third rides on the ROOF via the maintenance shaft... or you press {Interact} on the console and leave someone behind.", null, true);
             _ctx.Hint(new Vector3(-1f, UpperY + 2f, 196f), new Vector3(18f, 8f, 18f),
                 "Two interns in the pod (any two fit under 200 kg). The third climbs the maintenance shaft lifts beside the deck to the pod roof - the roof counts as inside, but not on the scale.",
                 "The scale only weighs the floor.");

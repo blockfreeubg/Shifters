@@ -38,21 +38,21 @@ namespace Shifters
 
             Gantry(s, BridgeGapEnd + 1.2f, 5.4f, 5.3f, "BRIDGE TRAINING: PLEASE DO NOT STEP ON THE INTERN", 10.2f, 1.2f, SignStyle.Warning);
             Sign(s, V(-5.75f, 1.9f, 87f), 90f, "GAP: 5.2 M\nINTERN: 6.5 M\nMATH: CHECKS OUT", 2.2f, 1.2f);
-            FloorText(s, V(0f, 0f, 88.4f), 0f, "LIE DOWN HERE  [B]", 0.45f, UIColors.AccentYellow, 6f);
+            DevicePromptText.Attach(FloorText(s, V(0f, 0f, 88.4f), 0f, InputPrompts.Format("LIE DOWN HERE  [{BRIDGE}]", false, false), 0.45f, UIColors.AccentYellow, 6f), "LIE DOWN HERE  [{BRIDGE}]");
             Kit.BoxVisual(s, "BridgeMark", V(0f, 0.01f, BridgeGapStart - 0.45f), V(1.4f, 0.02f, 0.9f), MatKey.HazardStripes, 0.003f, null, false);
             ctx.Tutorial(V(0f, 1.5f, 85.5f), V(12f, 3.5f, 6f), "bridge", "LIVING BRIDGE",
-                "Need a bridge? Try using your teammate. Stand at the edge and press B.", new[] { "B" }, true);
+                "Need a bridge? Try using your teammate. Stand at the edge and press {Bridge}.", new[] { "B" }, true);
             var follow = Kit.Make("Tutorial_bridge_cross", ctx.Gameplay, V(0f, 1f, 92f)).AddComponent<L1BridgeTutorial>();
             follow.ZoneSize = V(12f, 5f, 14f);
             follow.Message = new TutorialMessage
             {
                 Id = "bridge_cross", Title = "CROSSING",
-                Body = "Switch and walk across. As the bridge, press B again to recover - you'll snap to the far side.",
+                Body = "Switch and walk across. As the bridge, press {Bridge} again to recover - you'll snap to the far side.",
                 Keys = new[] { "RShift", "B" }, Important = true, Duration = 0f
             };
             ctx.Mark("tutorial.bridge_cross", follow.gameObject);
             ctx.Hint(V(0f, 2f, 92f), V(12f, 5f, 16f),
-                "Walk one intern to the striped mark at the edge and press B to become a 6.5 m plank. Switch to the others and walk across one at a time. Then switch back and press B to snap to the far side.",
+                "Walk one intern to the striped mark at the edge and press {Bridge} to become a 6.5 m plank. Switch to the others and walk across one at a time. Then switch back and press {Bridge} to snap to the far side.",
                 "The gap is exactly one intern long. Ish.");
             ctx.Checkpoint(V(0f, 0f, 102f), 0f);
 
@@ -144,9 +144,9 @@ namespace Shifters
             Sign(s, V(4.6f, BalconyTop + 2.4f, BalconyZ1 - 0.15f), 180f, "LANDING ZONE\nPLEASE TUCK AND ROLL", 3.4f, 1.1f);
             IQNote(s, V(-6.75f, 2.4f, 138f), -90f, "STRONG INTERNS CAN THROW SMALL INTERNS. LEGALLY GREY.", 0.26f);
             ctx.Tutorial(V(2f, 1.5f, 135f), V(12f, 3.5f, 8f), "throwing", "THROWING",
-                "Strong characters can pick up (F) and throw (Q) teammates. Stand on THROW FROM HERE, face the balcony, look up a little.", new[] { "F", "Q" }, true);
+                "Strong characters can pick up ({Grab}) and throw ({Throw}) teammates. Stand on THROW FROM HERE, face the balcony, look up a little.", new[] { "F", "Q" }, true);
             ctx.Hint(V(2f, 2f, 138f), V(14f, 6f, 14f),
-                "Switch to the HEAVY LIFTER, pick up a teammate with F, stand on the THROW FROM HERE stripes facing the balcony and throw with Q (look up a little). Up there, pull the lever.",
+                "Switch to the HEAVY LIFTER, pick up a teammate with {Grab}, stand on the THROW FROM HERE stripes facing the balcony and throw with {Throw} (look up a little). Up there, pull the lever.",
                 "Some interns are meant to fly. Briefly.");
 
             // decor

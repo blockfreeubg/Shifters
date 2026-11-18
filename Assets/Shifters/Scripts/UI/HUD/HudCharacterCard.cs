@@ -28,6 +28,7 @@ namespace Shifters
         CanvasGroup _contentGroup;
         readonly Image[] _perkIcons = new Image[3];
         TextMeshProUGUI _keyLabel;
+        DeviceKeyCap _keyCap;   // kb: slot number (1/2/3 switch directly); hidden on pad (D-pad = team/hint/taunt in gameplay)
 
         CharacterState _state = (CharacterState)(-1);
         bool _hasWeapon, _first = true;
@@ -64,7 +65,9 @@ namespace Shifters
             prt.anchorMin = prt.anchorMax = new Vector2(0f, 0.5f); prt.pivot = new Vector2(0f, 0.5f);
             prt.anchoredPosition = new Vector2(26f, 0f);
 
-            var key = UIFactory.KeyCap(_content, "1", 26f);
+            var key = UIFactory.ActionCap(_content, "Select1", 26f, "1");
+            _keyCap = key.GetComponent<DeviceKeyCap>();
+            _keyCap.Init(null, "1", 26f);
             key.anchorMin = key.anchorMax = new Vector2(0f, 0f); key.pivot = new Vector2(0.5f, 0.5f);
             key.anchoredPosition = new Vector2(30f, 16f);
             _keyLabel = key.GetComponentInChildren<TextMeshProUGUI>();
@@ -117,7 +120,7 @@ namespace Shifters
             _title.text = p.Title;
             _title.color = p.PrimaryColor;
             _strip.color = p.PrimaryColor;
-            _keyLabel.text = (c.Slot + 1).ToString();
+            if (_keyCap != null) _keyCap.Init(null, (c.Slot + 1).ToString(), 26f); else _keyLabel.text = (c.Slot + 1).ToString();
             _portrait.Bind(c.Slot, p);
             int n = 0;
             if (p.HasStrengthPerk) SetPerk(n++, UIIcon.Strength, UIColors.Strength);

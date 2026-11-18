@@ -9,6 +9,8 @@
 //  > grab candidate "[F] Pick up x" (too-heavy PROPS -> blocked with "Needs STR 7 ...") > bridge hint
 //  "[B] Become a bridge" (only at a ledge facing a 3..6 m gap). Raised only when it changes; cleared
 //  (null) when the character stops being active. Scans at ~10 Hz.
+//  Keys are InputPrompts tokens ("{Grab}", text "Throw x    [{Grab}] Put down"): HudPrompt draws them for the
+//  player's current device and re-renders on ShiftersInput.DeviceChanged (gp_core).
 // =====================================================================================
 using UnityEngine;
 
@@ -126,18 +128,18 @@ namespace Shifters
             var c = Character;
             // 1) state prompts
             if (c.Bridge != null && c.Bridge.IsSolid)
-                return Hit(1, null) ? _cachePrompt : Store(PromptInfo.Make(AbilityInput.Key("Bridge", "B"), "Get up (hop off the gap)"));
+                return Hit(1, null) ? _cachePrompt : Store(PromptInfo.Make("{Bridge}", "Get up (hop off the gap)"));
             if (c.Condition == CharacterCondition.Flopped)
-                return Hit(2, null) ? _cachePrompt : Store(PromptInfo.Make(AbilityInput.Key("Flop", "X"), "Get up"));
+                return Hit(2, null) ? _cachePrompt : Store(PromptInfo.Make("{Flop}", "Get up"));
             if (c.Grabbable != null && c.Grabbable.IsHeld)
-                return Hit(3, null) ? _cachePrompt : Store(PromptInfo.Make(AbilityInput.Key("Jump", "Space"), "Wriggle free"));
+                return Hit(3, null) ? _cachePrompt : Store(PromptInfo.Make("{Jump}", "Wriggle free"));
             if (!c.CanAct && c.Condition != CharacterCondition.Interacting) { _cacheKind = -1; return null; }
             // 2) interactables
             if (Current != null)
             {
                 _cacheKind = -1;
                 string verb = Current.GetPrompt(c);
-                string key = AbilityInput.Key("Interact", "E");
+                string key = "{Interact}";
                 return _currentCan ? PromptInfo.Make(key, verb) : PromptInfo.MakeBlocked(key, verb, _currentReason);
             }
             // 3) holding / grab
@@ -146,19 +148,19 @@ namespace Shifters
             {
                 var held = gr.Held;
                 return Hit(4, held) ? _cachePrompt
-                    : Store(PromptInfo.Make(AbilityInput.Key("Throw", "Q"), "Throw " + held.PromptName + "    [" + AbilityInput.Key("Grab", "F") + "] Put down"));
+                    : Store(PromptInfo.Make("{Throw}", "Throw " + held.PromptName + "    [{Grab}] Put down"));
             }
             if (gr != null)
             {
                 var best = gr.FindBestCandidate(out var heavy);
-                if (best != null) return Hit(5, best) ? _cachePrompt : Store(PromptInfo.Make(AbilityInput.Key("Grab", "F"), "Pick up " + best.PromptName));
+                if (best != null) return Hit(5, best) ? _cachePrompt : Store(PromptInfo.Make("{Grab}", "Pick up " + best.PromptName));
                 // passive "too heavy" prompt only for props (standing next to the Brute shouldn't nag); pressing F still explains
-                if (heavy != null && heavy.Character == null) return Hit(6, heavy) ? _cachePrompt : Store(PromptInfo.MakeBlocked(AbilityInput.Key("Grab", "F"), "Pick up " + heavy.PromptName, gr.TooHeavyReason(heavy)));
+                if (heavy != null && heavy.Character == null) return Hit(6, heavy) ? _cachePrompt : Store(PromptInfo.MakeBlocked("{Grab}", "Pick up " + heavy.PromptName, gr.TooHeavyReason(heavy)));
             }
             // 4) bridge hint
             var br = c.Bridge;
             if (br != null && br.ProbeGap(out _) && br.CanForm(out _))
-                return Hit(7, null) ? _cachePrompt : Store(PromptInfo.Make(AbilityInput.Key("Bridge", "B"), "Become a bridge"));
+                return Hit(7, null) ? _cachePrompt : Store(PromptInfo.Make("{Bridge}", "Become a bridge"));
             _cacheKind = -1;
             return null;
         }

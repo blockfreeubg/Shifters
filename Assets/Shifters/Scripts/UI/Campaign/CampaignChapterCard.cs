@@ -39,6 +39,10 @@ namespace Shifters
         CanvasGroup _group;
         Image _backdrop;
         TextMeshProUGUI _act, _title, _objective, _quip, _skipHint;
+        /// <summary>Skip hint template (gp_ui): keyboard "PRESS ANY KEY TO SKIP" (unchanged), gamepad "PRESS A TO SKIP".</summary>
+        public const string SkipHintTemplate = "PRESS {kb:ANY KEY}{pad:{CONFIRM}} TO SKIP";
+        /// <summary>Skip hint as currently shown (tests).</summary>
+        public string SkipHintText => _skipHint != null ? _skipHint.text : "";
         RectTransform _actRt, _tv, _quipRt, _lineL, _lineR;
         CampaignHudStyle.DrawnFace _face;
         RawImage _tvRaw;
@@ -110,6 +114,7 @@ namespace Shifters
 
             _skipHint = UIFactory.Text(rt, "SkipHint", "PRESS ANY KEY TO SKIP", FontLibrary.Label, 18f, UIColors.TextMuted, new Vector2(1f, 0f), new Vector2(-40f, 36f), new Vector2(420f, 24f), TextAlignmentOptions.Right, false, new Vector2(1f, 0f));
             _skipHint.characterSpacing = 4f;
+            DevicePromptText.Attach(_skipHint, SkipHintTemplate);   // pad: "PRESS A TO SKIP" (A, B and Start all skip)
         }
 
         public void Show(string act, string title, string objective = null, string quip = null)

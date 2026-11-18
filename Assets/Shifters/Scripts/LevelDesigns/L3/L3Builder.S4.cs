@@ -29,7 +29,7 @@ namespace Shifters
             Block(g, -10f, -6.5f, 140.8f, 175f, 2f);
             EnvKit.Stairs(g, new Vector3(-8.25f, 0f, 137f), Vector3.forward, 3.5f, 0.2f, 0.38f, 10);
             var prow4 = new Vector3(-3.5f, 0f, 159.5f);
-            LureProw(g, ctx.Decor, prow4, 1f, "LURE\nHERE (T)");
+            LureProw(g, ctx.Decor, prow4, 1f, "LURE\nHERE ({TAUNT})");
             RailingAroundProw(g, -6.5f, 140.8f, 174.6f, prow4, 1f);
             Sign(ctx.Decor, new Vector3(-4.51f, 1.2f, 158.41f), 135f, "BOTS: QUEUE AT THE TIP. NO CLIMBING.", 2.6f, 0.5f, SignStyle.Warning);
             Sign(ctx.Decor, new Vector3(-6.44f, 1.3f, 142f), 90f, "<LURE GALLERY", 3f, 0.55f, SignStyle.Arrow);
@@ -123,7 +123,7 @@ namespace Shifters
             ctx.MarkPoint("S4.CabR", new Vector3(4.0f, 0.1f, 184.2f));
 
             ctx.Hint(new Vector3(0f, 2f, 150f), new Vector3(20f, 5f, 26f),
-                "Lure both bots: taunt (T) from the gallery pulpit. While they wait below, the Brute (or Sprinter + Brainiac together) holds the 100 KG plate for 3 s. The latch also opens the staff hatch at the end of the gallery for the lure.",
+                "Lure both bots: taunt ({Taunt}) from the gallery pulpit. While they wait below, the Brute (or Sprinter + Brainiac together) holds the 100 KG plate for 3 s. The latch also opens the staff hatch at the end of the gallery for the lure.",
                 "Two bots, one plate, zero dignity. Somebody be loud somewhere high.");
             ctx.Tutorial(new Vector3(3f, 1.5f, 145f), new Vector3(10f, 3f, 6f), "l3_distract", "DISTRACTION",
                 "Bots investigate noises: taunts, gunshots, thrown teammates landing. A teammate thrown INTO a bot knocks it over. Bowling!", new[] { "T", "LMB", "Q" });

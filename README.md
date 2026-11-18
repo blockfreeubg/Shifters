@@ -82,7 +82,9 @@ so their rows are greyed out.
 
 ## Controls
 
-Keyboard and mouse are the main controls. Gamepad bindings exist as well (right-hand column).
+Keyboard and mouse are the main controls. Gamepad bindings exist as well (right-hand column). On-screen prompts follow the
+device you use: tutorial cards, hints, button prompts, HUD chips and the signs in the levels show the gamepad buttons while you
+play with a pad, and switch back to keys as soon as you touch the keyboard or mouse.
 
 | Action | Keyboard / mouse | Gamepad |
 |---|---|---|

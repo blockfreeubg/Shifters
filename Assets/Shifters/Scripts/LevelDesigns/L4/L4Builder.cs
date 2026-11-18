@@ -16,6 +16,9 @@ namespace Shifters
     /// <summary>Code-defined Level 4 ("THE IQ TEST", LevelCatalog index 3, scene L4_IQTest).</summary>
     public partial class L4Builder : ILevelBuilder
     {
+        // gamepad prompts (integrator2, gamepad1): holo hint whose key follows the device (DevicePromptText)
+        const string BrainHolo = "HINT: THE BRUTE\nCAN LIFT A BRAIN.\n({GRAB} TO PICK UP)";
+
         public int LevelIndex => 3;
 
         // ------------------------------------------------------------------ shared metrics (also used by L4Solution)
@@ -62,7 +65,7 @@ namespace Shifters
             ctx.SetSpawn(new Vector3(0f, 0f, -3.5f), 0f);
 
             ctx.Tutorial(new Vector3(0f, 1.5f, -2.5f), new Vector3(12f, 3f, 8f), "l4_smart", "THE IQ TEST",
-                "SHIFT to your smartest intern to see what others can't. Press R to scan the room with whoever you are.",
+                "SHIFT to your smartest intern to see what others can't. Press {Scan} to scan the room with whoever you are.",
                 new[] { "1", "2", "3", "R" }, false);
 
             // welcome arch
@@ -122,10 +125,10 @@ namespace Shifters
             EnvKit.Poster(s, new Vector3(-4.6f, 2.6f, 13.72f), Quaternion.identity, "STANDING ON COWORKERS", "IS ENCOURAGED. FOR SCIENCE.");
             // EnvKit mounted pieces (Sign, Poster, LightPanel, HoloPanel...): rot = the direction the VIEWER looks
             EnvKit.LightPanel(ctx.Lights, new Vector3(-6f, 4.6f, 13.7f), Quaternion.identity, new Vector2(2.4f, 0.35f), UIColors.Intellect, false);
-            EnvKit.Decor.HoloPanel(s, new Vector3(-6.5f, 0f, 9.5f), Quaternion.Euler(0f, -55f, 0f), new Vector2(2.6f, 1.3f), "HINT: THE BRUTE\nCAN LIFT A BRAIN.\n(F TO PICK UP)");
+            DevicePromptText.AttachInChildren(EnvKit.Decor.HoloPanel(s, new Vector3(-6.5f, 0f, 9.5f), Quaternion.Euler(0f, -55f, 0f), new Vector2(2.6f, 1.3f), InputPrompts.Format(BrainHolo, false, false)), BrainHolo);
 
             ctx.Hint(new Vector3(3f, 2f, 8.5f), new Vector3(18f, 5f, 11f),
-                "The terminal needs IQ 7 and sits on a 2.5 m ledge. Have the Brute pick up the Brainiac (F) and put them down on a teammate standing by the ledge - or just throw them up (Q). Then hack (E).",
+                "The terminal needs IQ 7 and sits on a 2.5 m ledge. Have the Brute pick up the Brainiac ({Grab}) and put them down on a teammate standing by the ledge - or just throw them up ({Throw}). Then hack ({Interact}).",
                 "Some minds need elevating. Literally.");
 
             // C1 beyond the gate
@@ -155,10 +158,10 @@ namespace Shifters
             EnvKit.Sign(s, new Vector3(-9.2f, 2.9f, 49.68f), Quaternion.identity, "YOU MADE IT.\nWE ARE AS SURPRISED AS YOU.", new Vector2(4.4f, 1.0f), SignStyle.Info);
 
             ctx.Tutorial(new Vector3(0f, 1.5f, 23.2f), new Vector3(10f, 3f, 5f), "l4_path", "HIDDEN PATHWAY",
-                "Only BIG BRAIN interns can see hologram tiles. Tiles they step on stay visible to everyone for 8 seconds. Press G and the others FOLLOW your steps.",
+                "Only BIG BRAIN interns can see hologram tiles. Tiles they step on stay visible to everyone for 8 seconds. Press {AIMode} and the others FOLLOW your steps.",
                 new[] { "G" }, false);
             ctx.Hint(new Vector3(2f, 2f, 24f), new Vector3(22f, 5f, 8f),
-                "Switch to the Brainiac: the hologram path starts at the middle of the edge, goes 4 m forward, 10 m RIGHT, 12 m forward, then 6 m LEFT. Walk it first, then have the others FOLLOW (G) while the tiles glow.",
+                "Switch to the Brainiac: the hologram path starts at the middle of the edge, goes 4 m forward, 10 m RIGHT, 12 m forward, then 6 m LEFT. Walk it first, then have the others FOLLOW ({AIMode}) while the tiles glow.",
                 "The bridge is there. Probably. Ask someone smart to look at it.");
 
             // C2 on the far island (x -12..4, z 39.5..77)

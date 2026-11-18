@@ -253,7 +253,7 @@ namespace Shifters
             var shootLbl = Kit.Make("ShootLabel", pod.transform, Vector3.zero);
             PerspectiveKit.Reveal(shootLbl, PerspectiveMask.Weapon, "SHOOT HIM: DIZZY 3 s", false, true, new Vector3(0f, 2.8f, 0f));
             var clue = Kit.Make("ClueLabel", pod.transform, Vector3.zero);
-            PerspectiveKit.Reveal(clue, PerspectiveMask.Intellect, "HE CAN'T RESIST AN ARGUMENT. (T)", false, true, new Vector3(0f, 3.2f, 0f));
+            PerspectiveKit.Reveal(clue, PerspectiveMask.Intellect, "HE CAN'T RESIST AN ARGUMENT. ({TAUNT})", false, true, new Vector3(0f, 3.2f, 0f));
             pod.enabled = false;
             boss.Pod = pod;
             ctx.Mark("s4.pod", pod.gameObject);
@@ -328,19 +328,19 @@ namespace Shifters
             ctx.MarkPoint("story.c13.spr", new Vector3(16f, 0f, 41f));
             ctx.MarkPoint("story.c13.brain", new Vector3(16f, 0f, 37f));
             ctx.Tutorial(new Vector3(0f, 1.5f, 19f), new Vector3(24f, 3f, 12f), "ch13_fist", "THE FIST",
-                "Dodge the shadow. A missed fist gets STUCK. Only the Brute can punch it (E).", new[] { "E" }, true);
+                "Dodge the shadow. A missed fist gets STUCK. Only the Brute can punch it ({Interact}).", new[] { "E" }, true);
             ctx.Tutorial(new Vector3(-13.5f, 1.5f, 15.5f), new Vector3(4f, 3f, 4f), "ch13_bumps", "THE BUMP RUN",
                 "Press, then TURBO through both gates before the timer ends. Only the one who pressed counts.", new[] { "E", "LShift" }, false);
             boss.TutFirewall = ctx.Tutorial(new Vector3(0f, 2f, 30f), new Vector3(38f, 4f, 44f), "ch13_firewall", "THE BRAIN DOME",
                 "The smart one hacks both balcony terminals. Then anyone with a gun shoots the antenna.", new[] { "E", "LMB" }, false);
             boss.TutCapture = ctx.Tutorial(new Vector3(0f, 2f, 30f), new Vector3(38f, 4f, 44f), "ch13_capture", "THE CAPTURE",
-                "Stun him: bump him mid-speech, shoot him, TAUNT him (T) or TURBO-tag him. Then the Brute grabs the pod (F).", new[] { "T", "F" }, true);
+                "Stun him: bump him mid-speech, shoot him, TAUNT him ({Taunt}) or TURBO-tag him. Then the Brute grabs the pod ({Grab}).", new[] { "T", "F" }, true);
             if (boss.TutFirewall != null) boss.TutFirewall.SetActive(false);
             if (boss.TutCapture != null) boss.TutCapture.SetActive(false);
             ctx.Tutorial(new Vector3(16.5f, 1.5f, 38f), new Vector3(4f, 3f, 7f), "ch13_detention", "DETENTION",
                 "DETENTION opens only while the smart one holds the INTAKE (8 s). Drop him inside.", new[] { "E" }, false);
             ctx.Hint(new Vector3(0f, 2f, 21f), new Vector3(18f, 4f, 10f),
-                "Let the fist miss: step out of its shadow. While it's stuck, the Brute punches it (E). Three times.", "Big fists get stuck. Punch back.");
+                "Let the fist miss: step out of its shadow. While it's stuck, the Brute punches it ({Interact}). Three times.", "Big fists get stuck. Punch back.");
             ctx.Hint(new Vector3(-13f, 2f, 15.5f), new Vector3(6f, 4f, 4f),
                 "Press the bump button by the south-west break area, then TURBO through both gates. His skates do the rest.", "He hates speed bumps. Be fast.");
             ctx.Hint(new Vector3(-17f, 4f, 28f), new Vector3(4f, 3f, 6f),

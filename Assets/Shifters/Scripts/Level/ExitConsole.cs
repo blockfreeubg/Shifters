@@ -28,6 +28,9 @@ namespace Shifters
             return true;
         }
 
+        /// <summary>First-press warning (gamepad prompts: {Interact} = E / X, formatted for the current device when raised).</summary>
+        public const string ArmToast = "Press {Interact} again to leave ";
+
         public string GetPrompt(ShifterCharacter who) => IsArmed ? "CONFIRM: leave them behind" : "Leave without them";
 
         public void Interact(ShifterCharacter who)
@@ -37,7 +40,7 @@ namespace Shifters
             if (!IsArmed)
             {
                 _armedUntil = Time.time + ConfirmWindow;
-                GameEvents.RaiseToast("Press E again to leave " + JoinNames(missing) + " behind", UIColors.Danger);
+                GameEvents.RaiseToast(InputPrompts.FormatRich(ArmToast + JoinNames(missing) + " behind"), UIColors.Danger);
                 Sfx.At(SfxId.Denied, InteractPoint, 0.8f);
                 if (who != null) who.Say("...are we really doing this?");
                 return;

@@ -98,6 +98,10 @@ namespace Shifters
             SimulatedGrantOnRequest = true;
             _skipDownAt = -1f;
             _deviceFilter = null;
+            DeviceChanged = null;
+            _deviceVersion = 0;
+            _mouseTravel = 0f;
+            _mouseTravelAt = -1f;
         }
 
         /// <summary>Setting this also updates cursor lock (Gameplay/Switcher/Cutscene = locked + hidden, Menu = visible + free).
@@ -392,6 +396,41 @@ namespace Shifters
         /// <summary>True when the last meaningful input came from a gamepad (prompts should show pad labels).</summary>
         public static bool UsingGamepad => _usingGamepad;
 
+        /// <summary>Raised (arg = UsingGamepad) when the prompt device flips between keyboard/mouse and gamepad.
+        /// Robust: a pad stick/trigger must pass half deflection (drift never flips), the mouse must travel
+        /// MouseFlipPixels within MouseFlipWindow seconds (jitter never flips); any key, click, wheel or pad button flips at once.
+        /// Handlers run inside the Input System update (before MonoBehaviour.Update); exceptions are caught + logged.</summary>
+        public static event Action<bool> DeviceChanged;
+        /// <summary>Increments on every device flip (cheap polling alternative to <see cref="DeviceChanged"/>).</summary>
+        public static int DeviceVersion => _deviceVersion;
+        /// <summary>Pad stick / trigger magnitude that counts as real pad use.</summary>
+        public const float PadFlipMagnitude = 0.5f;
+        /// <summary>Mouse travel (pixels, summed) within <see cref="MouseFlipWindow"/> that flips prompts back to keyboard/mouse.</summary>
+        public const float MouseFlipPixels = 24f;
+        public const float MouseFlipWindow = 0.3f;
+        static int _deviceVersion;
+        static float _mouseTravel, _mouseTravelAt = -1f;
+
+        /// <summary>Set the prompt device directly (tests / DevPlay; real input normally drives it). Raises DeviceChanged on a flip.</summary>
+        public static void SetUsingGamepad(bool gamepad)
+        {
+            if (_usingGamepad == gamepad) return;
+            _usingGamepad = gamepad;
+            _deviceVersion++;
+            _mouseTravel = 0f;
+            var h = DeviceChanged;
+            if (h == null) return;
+            var list = h.GetInvocationList();
+            for (int i = 0; i < list.Length; i++)
+            {
+                try { ((Action<bool>)list[i])(gamepad); }
+                catch (Exception e) { Debug.LogException(e); }
+            }
+        }
+
+        /// <summary>The live action map (tests: GamepadPromptTests compares KeyLabels with its bindings). Null before Initialize.</summary>
+        public static InputActionMap ActionMapForTests { get { if (_map == null && Application.isPlaying) Initialize(); return _map; } }
+
         /// <summary>Human readable key for prompts: KeyLabel("Interact") => "E" (or gamepad text such as "X" when UsingGamepad).
         /// Unknown names are returned unchanged.</summary>
         public static string KeyLabel(string action) => _usingGamepad ? KeyLabels.Gamepad(action) : KeyLabels.Keyboard(action);
@@ -506,15 +545,31 @@ namespace Shifters
                 else if (ctx.phase == InputActionPhase.Canceled) _skipDownAt = -1f;
             }
             var control = ctx.control;
-            if (control == null) return;
+            if (control == null || ctx.phase == InputActionPhase.Canceled) return;
             var device = control.device;
-            if (device is Gamepad) { _usingGamepad = true; return; }
-            if (device is Keyboard) { _usingGamepad = false; return; }
+            if (device is Gamepad)
+            {
+                if (_usingGamepad) return;
+                // stick drift / a resting trigger never flips: half deflection (sticks already have a 0.125 deadzone)
+                if (ctx.action == _move || ctx.action == _lookStick || ctx.action == _navigate)
+                { if (ctx.ReadValue<Vector2>().sqrMagnitude < PadFlipMagnitude * PadFlipMagnitude) return; }
+                else if (control.EvaluateMagnitude() < PadFlipMagnitude) return;
+                SetUsingGamepad(true);
+                return;
+            }
+            if (device is Keyboard) { if (_usingGamepad) SetUsingGamepad(false); return; }
             if (device is Mouse)
             {
-                // ignore tiny mouse jitter so a bumped desk doesn't flip prompts away from the pad
-                if (ctx.action == _lookMouse && ctx.ReadValue<Vector2>().sqrMagnitude < 9f) return;
-                _usingGamepad = false;
+                if (!_usingGamepad) return;
+                if (ctx.action == _lookMouse)
+                {
+                    // ignore tiny mouse jitter (a bumped desk): the pointer must really travel within a short window
+                    float now = Time.unscaledTime;
+                    if (_mouseTravelAt < 0f || now - _mouseTravelAt > MouseFlipWindow) { _mouseTravel = 0f; _mouseTravelAt = now; }
+                    _mouseTravel += ctx.ReadValue<Vector2>().magnitude;
+                    if (_mouseTravel < MouseFlipPixels) return;
+                }
+                SetUsingGamepad(false);
             }
         }
 

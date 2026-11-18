@@ -108,7 +108,7 @@ namespace Shifters
             ctx.SetSpawn(new Vector3(0f, 0f, 0f), 0f);
 
             ctx.Tutorial(new Vector3(0f, 1.5f, 1.5f), new Vector3(12f, 3f, 8f), "l2_weights", "WEIGHT MATTERS",
-                "Plates show how much weight they need. Your strong character sees weights - switch to them and press R to scan.",
+                "Plates show how much weight they need. Your strong character sees weights - switch to them and press {Scan} to scan.",
                 new[] { "1", "2", "3", "R" }, false);
             ctx.Hint(new Vector3(0f, 2f, 2f), new Vector3(16f, 4f, 14f),
                 "Everything here has a weight. Plates and lifts list exactly what they need. Do the math before you do the jumping.",

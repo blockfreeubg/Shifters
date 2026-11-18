@@ -71,10 +71,10 @@ namespace Shifters
             ctx.MarkPoint("S2.InRoomR", new Vector3(0.85f, 0f, 86.2f));
 
             ctx.Hint(new Vector3(0f, 2f, 56f), new Vector3(16f, 5f, 9f),
-                "Only TURBO LEGS beat this timer. Sprinter: press TIMED, sprint (LSHIFT) straight down the walkway, then pull SHUTTER OVERRIDE inside so the others can stroll in.",
+                "Only TURBO LEGS beat this timer. Sprinter: press TIMED, sprint ({Sprint|LSHIFT}) straight down the walkway, then pull SHUTTER OVERRIDE inside so the others can stroll in.",
                 "Fast feet. Straight line. Absolutely no sightseeing.");
             ctx.Tutorial(new Vector3(0f, 1.5f, 55f), new Vector3(10f, 3f, 6f), "l3_timed", "TIMED DOOR",
-                "Fast characters beat timed doors. Switch to your Sprinter and hold LEFT SHIFT. The others can wait. They're good at that.", new[] { "LSHIFT" });
+                "Fast characters beat timed doors. Switch to your Sprinter and {kb:hold LEFT SHIFT}{pad:click {Sprint}}. The others can wait. They're good at that.", new[] { "LSHIFT" });
 
             // dressing
             Sign(ctx.Decor, new Vector3(0f, 3.5f, 59.2f), 180f, "TIMED DOOR: FAST INTERNS ONLY", 5.2f, 0.6f, SignStyle.Warning);
@@ -211,13 +211,13 @@ namespace Shifters
             ctx.MarkPoint("S3.GateFront", new Vector3(0f, 0f, 133.2f));
 
             ctx.Hint(new Vector3(0f, 2f, 104f), new Vector3(16f, 5f, 12f),
-                "One intern sits in the chair (E) to power the bridge. The other two cross and pull RELEASE. The freed volunteer takes the MAINTENANCE TUNNEL unless they have TURBO LEGS.",
+                "One intern sits in the chair ({Interact}) to power the bridge. The other two cross and pull RELEASE. The freed volunteer takes the MAINTENANCE TUNNEL unless they have TURBO LEGS.",
                 "Someone has to take one for the team. Temporarily. Probably.");
             ctx.Hint(new Vector3(-14f, 2f, 118f), new Vector3(6f, 5f, 36f),
                 "Jump the two acid trenches, then climb the steps onto the pipe catwalk: the bot can't reach 1.6 m. Drop down past the far end.",
                 "Up is safe. Down is detention.");
             ctx.Tutorial(new Vector3(0f, 1.5f, 102.5f), new Vector3(12f, 3f, 6f), "l3_sacrifice", "SACRIFICE",
-                "Sometimes the only way forward is to sacrifice someone. Sit in the chair (E) to power the bridge.", new[] { "E" });
+                "Sometimes the only way forward is to sacrifice someone. Sit in the chair ({Interact}) to power the bridge.", new[] { "E" });
             ctx.Tutorial(new Vector3(-12.5f, 1.5f, 103f), new Vector3(8f, 3f, 5f), "l3_recovery", "RECOVERY",
                 "Most sacrifices are recoverable. Most. Follow the tunnel back to your team.", null);
             PerspectiveKit.Clue(ctx.Decor, new Vector3(-7.78f, 2.4f, 107f), Yaw(-90f), "TUNNEL OPENS WHEN THE VOLUNTEER IS RELEASED", 0.28f);

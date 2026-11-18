@@ -47,9 +47,9 @@ namespace Shifters
 
         static readonly string[] GenericReal =
         {
-            "Nothing to solve right here. Remember: every coworker sees the world differently - SHIFT to another one and press R to scan.",
+            "Nothing to solve right here. Remember: every coworker sees the world differently - SHIFT to another one and press {Scan} to scan.",
             "The Brute lifts and pushes, the Sprinter outruns timers, the Brainiac sees hidden paths and hacks terminals.",
-            "Teammates on STAY make excellent pressure-plate weights. Press G to toggle Follow/Stay.",
+            "Teammates on STAY make excellent pressure-plate weights. Press {AIMode} to toggle Follow/Stay.",
             "Stuck on a high ledge? Stack: stand on a teammate's head, or let the Brute throw someone up.",
         };
 
@@ -92,11 +92,13 @@ namespace Shifters
             CooldownLeft = Cooldown;
             int iq = active.Stats != null ? active.Stats.IQ : 5;
             var zone = FindZone(active.Center);
-            string text = Compose(iq, zone, _rng);
+            // gamepad prompts: hint texts may carry input tokens ({Scan}, {AIMode}, HintZone templates) -> current device
+            string raw = Compose(iq, zone, _rng);
+            string text = InputPrompts.FormatRich(raw);
             LastHint = text;
             HintCount++;
             if (iq < Tuning.HintRealIQ) active.Say(Thinking[_rng.Next(Thinking.Length)]);
-            GameEvents.RaiseHint(text);
+            GameEvents.RaiseHint(raw);   // integrator2 gamepad1: HudHint formats the template live (DevicePromptText); return value = formatted
             return text;
         }
 

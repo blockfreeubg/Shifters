@@ -2,6 +2,9 @@
 //  SHIFTERS - HudPrompt.cs   (UI agent)
 //  Bottom-center interaction prompt: [KEY] text. Blocked prompts turn red and show the
 //  reason line ("Requires STR 7 - yours: 3"). Listens: GameEvents.Prompt (null clears).
+//  Gamepad prompts (gp_core): PromptInfo.Key may be a token ("{Interact}") -> device-styled cap that follows
+//  the device; a literal key ("E", "RIGHT SHIFT") is drawn as the classic keyboard cap (as before). Text and
+//  BlockedReason go through InputPrompts.Format ("Throw x    [{Grab}] Put down"). Re-renders on DeviceChanged.
 // =====================================================================================
 using TMPro;
 using UnityEngine;
@@ -17,11 +20,16 @@ namespace Shifters
         Image _bg, _border;
         CanvasGroup _group;
         string _lastKey, _lastText, _lastReason;
-        bool _lastBlocked, _visible;
+        bool _lastBlocked, _visible, _lastPad;
+        PromptInfo _info;
 
         public bool Visible => _visible;
         public bool Blocked => _lastBlocked;
         public string CurrentText => _lastText;
+        /// <summary>Text as displayed (tokens formatted for the device).</summary>
+        public string ShownText => _text != null ? _text.text : "";
+        /// <summary>Key cap text as displayed.</summary>
+        public string ShownKey => _key != null ? _key.GetComponentInChildren<TMP_Text>().text : "";
 
         public static HudPrompt Create(Transform parent)
         {
@@ -42,8 +50,10 @@ namespace Shifters
             return p;
         }
 
-        void OnEnable() => GameEvents.Prompt += OnPrompt;
-        void OnDisable() => GameEvents.Prompt -= OnPrompt;
+        void OnEnable() { GameEvents.Prompt += OnPrompt; ShiftersInput.DeviceChanged += OnDeviceChanged; }
+        void OnDisable() { GameEvents.Prompt -= OnPrompt; ShiftersInput.DeviceChanged -= OnDeviceChanged; }
+
+        void OnDeviceChanged(bool gamepad) { if (_visible) OnPrompt(_info); }
 
         public void Clear() => OnPrompt(null);
 
@@ -57,20 +67,26 @@ namespace Shifters
                 return;
             }
             var p = info.Value;
-            string key = string.IsNullOrEmpty(p.Key) ? "E" : p.Key;
-            bool same = _visible && key == _lastKey && p.Text == _lastText && p.Blocked == _lastBlocked && p.BlockedReason == _lastReason;
+            string key = string.IsNullOrEmpty(p.Key) ? "{Interact}" : p.Key;
+            bool pad = ShiftersInput.UsingGamepad;
+            bool same = _visible && key == _lastKey && p.Text == _lastText && p.Blocked == _lastBlocked && p.BlockedReason == _lastReason && pad == _lastPad;
             if (same) return;
             bool wasVisible = _visible;
-            _lastKey = key; _lastText = p.Text; _lastBlocked = p.Blocked; _lastReason = p.BlockedReason;
+            bool sameContent = _visible && key == _lastKey && p.Text == _lastText && p.Blocked == _lastBlocked && p.BlockedReason == _lastReason;
+            _lastKey = key; _lastText = p.Text; _lastBlocked = p.Blocked; _lastReason = p.BlockedReason; _lastPad = pad;
+            _info = p;
             _visible = true;
 
             if (_key != null) Destroy(_key.gameObject);
-            _key = UIFactory.KeyCap(_keyParent, key, 38f);
+            bool tokenKey = InputPrompts.HasTokens(key);
+            string keyLabel = tokenKey ? InputPrompts.Format(key, pad, false) : key;
+            _key = tokenKey && pad ? UIFactory.PadCap(_keyParent, keyLabel, 38f) : UIFactory.KeyCap(_keyParent, keyLabel, 38f);
             _key.anchorMin = _key.anchorMax = new Vector2(0f, 0.5f); _key.pivot = new Vector2(0f, 0.5f);
             _key.anchoredPosition = new Vector2(12f, 1f);
             float kw = _key.sizeDelta.x;
-            _text.text = p.Text;
-            float tw = Mathf.Min(UIFactory.Preferred(_text, p.Text).x, 720f);
+            string shown = InputPrompts.Format(p.Text, pad, true);
+            _text.text = shown;
+            float tw = Mathf.Min(UIFactory.Preferred(_text, shown).x, 720f);
             var trt = _text.rectTransform;
             trt.anchorMin = trt.anchorMax = new Vector2(0f, 0.5f); trt.pivot = new Vector2(0f, 0.5f);
             trt.anchoredPosition = new Vector2(12f + kw + 14f, 0f); trt.sizeDelta = new Vector2(tw + 4f, 50f);
@@ -80,9 +96,10 @@ namespace Shifters
             _border.color = UIFactory.WithAlpha(accent, 0.95f);
             _text.color = p.Blocked ? Color.Lerp(UIColors.Danger, Color.white, 0.25f) : UIColors.Text;
             _bg.color = p.Blocked ? new Color(0.16f, 0.04f, 0.06f, 0.9f) : new Color(0.06f, 0.07f, 0.09f, 0.88f);
-            _reason.text = p.Blocked ? (p.BlockedReason ?? "") : "";
+            _reason.text = p.Blocked ? InputPrompts.Format(p.BlockedReason ?? "", pad, true) : "";
             _reason.gameObject.SetActive(p.Blocked && !string.IsNullOrEmpty(p.BlockedReason));
 
+            if (sameContent) return;   // device switch only: no pop / shake again
             UITween.Fade(_group, 1f, 0.15f);
             if (!wasVisible) UITween.Move(_rt, new Vector2(0f, 150f), 0.25f, Ease.OutBack, 0f, new Vector2(0f, 120f));
             UITween.Scale(_key, 1f, 0.3f, Ease.OutBack, 0f, 0.6f);

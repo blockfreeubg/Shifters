@@ -217,7 +217,7 @@ namespace Shifters
                 .Line("{SPRINTER}", Expression.Happy, "Taking turns!")
                 .Line("{BRUTE}", Expression.Happy, "Every day!")
                 .Line("PERCY", "A presidency that... shifts.", true)
-                .Prompt("WHO RULES TODAY? [RIGHT SHIFT]", ShiftocracyEnding.PromptId)
+                .Prompt("WHO RULES TODAY? [{Switcher|RIGHT SHIFT}]", ShiftocracyEnding.PromptId)
                 .Beat("c15.statue")
                 .Sfx(SfxId.CrowdCheer)
                 .Line("MAX", Expression.Pout, "...can I have a job?")

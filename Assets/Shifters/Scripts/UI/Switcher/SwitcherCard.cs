@@ -28,6 +28,7 @@ namespace Shifters
         Image _band;
         PortraitView _portrait;
         TextMeshProUGUI _name, _title, _key, _tagText, _stampText;
+        DeviceKeyCap _keyCap;   // kb: slot number; pad: the switcher D-pad button (D-LEFT/D-UP/D-RIGHT)
         UIStatBar _spd, _str, _iq;
         UIHealthBar _health;
         RectTransform _chips, _tag, _stamp;
@@ -67,7 +68,8 @@ namespace Shifters
             prt.anchorMin = prt.anchorMax = new Vector2(0f, 1f); prt.pivot = new Vector2(0f, 1f);
             prt.anchoredPosition = new Vector2(20f, -26f);
 
-            var key = UIFactory.KeyCap(Rt, "1", 40f);
+            var key = UIFactory.ActionCap(Rt, "Select1", 40f, "1");
+            _keyCap = key.GetComponent<DeviceKeyCap>();
             key.anchorMin = key.anchorMax = new Vector2(0f, 1f); key.pivot = new Vector2(0.5f, 0.5f);
             key.anchoredPosition = new Vector2(14f, -10f);
             _key = key.GetComponentInChildren<TextMeshProUGUI>();
@@ -127,7 +129,7 @@ namespace Shifters
             gameObject.SetActive(c != null);
             if (c == null || c.Profile == null) return;
             var p = c.Profile;
-            _key.text = (Slot + 1).ToString();
+            if (_keyCap != null) _keyCap.Init("Select" + (Slot + 1), (Slot + 1).ToString(), 40f); else _key.text = (Slot + 1).ToString();
             _name.text = p.DisplayName.ToUpperInvariant();
             _title.text = p.Title;
             _title.color = p.PrimaryColor;

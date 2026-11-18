@@ -38,7 +38,7 @@ namespace Shifters
             irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.pivot = new Vector2(0f, 0.5f); irt.anchoredPosition = new Vector2(12f, 0f);
             p._aiText = UIFactory.Text(p._aiChip, "Text", "TEAM: HOLD", FontLibrary.Label, 21f, UIColors.Text, new Vector2(0f, 0.5f), new Vector2(42f, 0f), new Vector2(190f, 30f), TextAlignmentOptions.Left, false, new Vector2(0f, 0.5f));
             p._aiText.characterSpacing = 4f;
-            var key = UIFactory.KeyCap(p._aiChip, "G", 24f);
+            var key = UIFactory.ActionCap(p._aiChip, "AIMode", 24f, "G");   // pad: D-LEFT (right-anchored, grows left)
             key.anchorMin = key.anchorMax = new Vector2(1f, 0.5f); key.pivot = new Vector2(1f, 0.5f); key.anchoredPosition = new Vector2(-10f, 1f);
             p.SetVisible(false);
             return p;

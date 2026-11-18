@@ -61,7 +61,7 @@ namespace Shifters
             _keyRow = UIFactory.Rect("KeyRow", Rt, new Vector2(0.5f, 1f), new Vector2(0f, -112f), new Vector2(W, 50f), new Vector2(0.5f, 1f));
             var bg = UIFactory.Image(_keyRow, "Bg", UISprites.Rounded(25), new Color(0.06f, 0.07f, 0.09f, 0.82f));
             var bgr = bg.rectTransform; bgr.anchorMin = bgr.anchorMax = new Vector2(0.5f, 0.5f); bgr.sizeDelta = new Vector2(640f, 54f);
-            var key = UIFactory.KeyCap(_keyRow, "RIGHT SHIFT", 38f);
+            var key = UIFactory.ActionCap(_keyRow, "Switcher", 38f, "RIGHT SHIFT");   // pad: D-DOWN (pivot right: grows left)
             key.anchorMin = key.anchorMax = new Vector2(0.5f, 0.5f); key.pivot = new Vector2(1f, 0.5f); key.anchoredPosition = new Vector2(-150f, 2f);
             _sub = UIFactory.Text(_keyRow, "Sub", "PICK TODAY'S PRESIDENT", FontLibrary.Label, 26f, UIColors.Text, new Vector2(0.5f, 0.5f), new Vector2(-134f, 0f), new Vector2(460f, 40f), TextAlignmentOptions.Left, false, new Vector2(0f, 0.5f));
             _sub.characterSpacing = 4f;

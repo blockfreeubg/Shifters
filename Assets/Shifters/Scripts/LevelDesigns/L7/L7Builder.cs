@@ -118,7 +118,7 @@ namespace Shifters
 
             ctx.Tutorial(new Vector3(0f, 1.5f, -6f), new Vector3(18f, 3f, 8f), "ch04_actnatural", "ACT NATURAL",
                 "Cameras flag TEAMWORK: two or more interns within 3 m inside a cone. One intern alone is fine. " +
-                "Smart eyes see blind spots. Fast eyes see sweep timers.", new[] { "TAB", "Q / E" }, true, g);
+                "Smart eyes see blind spots. Fast eyes see sweep timers.", new[] { "TAB", "Q", "E" }, true, g);
             StoryKit.ScriptTrigger(g, new Vector3(0f, 1.5f, -4.2f), new Vector3(20f, 3f, 2.5f), "ch04.disguise", true);
         }
 

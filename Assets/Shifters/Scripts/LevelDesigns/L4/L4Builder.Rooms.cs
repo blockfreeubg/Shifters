@@ -79,7 +79,7 @@ namespace Shifters
             EnvKit.LightPanel(ctx.Lights, new Vector3(RoomEast - 0.27f, 4.3f, 63f), Quaternion.Euler(0f, 90f, 0f), new Vector2(2.4f, 0.35f), UIColors.Intellect, false);
 
             ctx.Hint(new Vector3(-4f, 2f, 58f), new Vector3(15f, 5f, 15.5f),
-                "IQ view shows a number above each symbol. Press the buttons (E) in that order: CIRCLE, STAR, TRIANGLE, SQUARE. A wrong press resets the sequence.",
+                "IQ view shows a number above each symbol. Press the buttons ({Interact}) in that order: CIRCLE, STAR, TRIANGLE, SQUARE. A wrong press resets the sequence.",
                 "There's an order to things. The smart one can see it. The rest of you can guess. 24 times.");
 
             ctx.Checkpoint(new Vector3(-4f, 0f, 71f), 0f);
@@ -263,7 +263,7 @@ namespace Shifters
             ctx.MarkPoint("S5.BeyondB", new Vector3(-4f, 0f, 160.2f));
             ctx.MarkPoint("S5.Stage2Entry", new Vector3(-4f, 0f, 132.2f));
             ctx.Hint(new Vector3(-4f, 2f, 143f), new Vector3(15f, 5f, 25f),
-                "The timed door only stays open long enough for TURBO LEGS: press the orange button with the Sprinter and sprint (LSHIFT) straight to the door. Pull the lever behind it to let the others in.",
+                "The timed door only stays open long enough for TURBO LEGS: press the orange button with the Sprinter and sprint ({Sprint|LSHIFT}) straight to the door. Pull the lever behind it to let the others in.",
                 "Run. No, faster than that.");
 
             // ---------------- stage 3: INTELLECT (z 158..172)

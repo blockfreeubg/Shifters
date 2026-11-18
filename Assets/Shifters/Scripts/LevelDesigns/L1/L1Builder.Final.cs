@@ -72,9 +72,9 @@ namespace Shifters
             Sign(s, V(-22f, 4.3f, RangeZ - 3.2f), 90f, "DO NOT SHOOT THE BARREL\n(PLEASE SHOOT THE BARREL)", 3f, 1f, SignStyle.Warning);
 
             ctx.Tutorial(V(0f, 1.5f, 155f), V(14f, 3.5f, 10f), "weapon", "WEAPON",
-                "One of you has a gun - look for the weapon icon. RIGHT MOUSE aims, LEFT MOUSE fires.", new[] { "RMB", "LMB" }, true);
+                "One of you has a gun - look for the weapon icon. {kb:RIGHT MOUSE}{pad:{AIM}} aims, {kb:LEFT MOUSE}{pad:{FIRE}} fires.", new[] { "RMB", "LMB" }, true);
             ctx.Hint(V(-4f, 2f, RangeZ), V(16f, 5f, 18f),
-                "Switch to whoever carries the gun (weapon icon). Hold RIGHT MOUSE to aim and LEFT MOUSE to hit all three bullseyes. Bonus: knock the barrel off its shelf.",
+                "Switch to whoever carries the gun (weapon icon). Hold {kb:RIGHT MOUSE}{pad:{AIM}} to aim and {kb:LEFT MOUSE}{pad:{FIRE}} to hit all three bullseyes. Bonus: knock the barrel off its shelf.",
                 "Pointy end toward the targets.");
             ctx.Checkpoint(V(0f, 0f, 181f), 0f);
 
@@ -224,7 +224,7 @@ namespace Shifters
             ctx.Tutorial(V(0f, 1.5f, 243f), V(10f, 3.5f, 5f), "exit", "EXIT",
                 "Get everyone into the exit elevator.", new string[0], true);
             ctx.Hint(V(0f, 2f, 234f), V(24f, 5f, 24f),
-                "Walk one intern onto each glowing plate (switch with 1/2/3 - the others stay put). When all three are pressed the gate latches open. Then everyone into the elevator.",
+                "Walk one intern onto each glowing plate (switch with {kb:1/2/3}{pad:{Switcher}} - the others stay put). When all three are pressed the gate latches open. Then everyone into the elevator.",
                 "Three plates. You have exactly enough interns. Barely.");
 
             var d = ctx.Decor;

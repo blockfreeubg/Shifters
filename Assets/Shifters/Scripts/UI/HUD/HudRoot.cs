@@ -53,6 +53,7 @@ namespace Shifters
             h._clickToPlay.pivot = new Vector2(0.5f, 0.5f);
             h._clickToPlay.anchoredPosition = new Vector2(0f, -120f);
             h._clickToPlay.gameObject.SetActive(false);
+            DevicePromptText.Attach(h._clickToPlay, "{kb:CLICK TO PLAY}");   // mouse-only hint: the chip is hidden on a pad (see Update)
             return h;
         }
 
@@ -62,7 +63,8 @@ namespace Shifters
         {
             if (_clickToPlay == null) return;
             bool show = Application.platform == RuntimePlatform.WebGLPlayer && !_menuOpen && !_switcherOpen
-                        && ShiftersInput.Context == InputContext.Gameplay && !ShiftersInput.CursorLocked;
+                        && ShiftersInput.Context == InputContext.Gameplay && !ShiftersInput.CursorLocked
+                        && !ShiftersInput.UsingGamepad;   // pad play needs no pointer lock: nothing to click
             if (_clickToPlay.gameObject.activeSelf != show) _clickToPlay.gameObject.SetActive(show);
         }
 

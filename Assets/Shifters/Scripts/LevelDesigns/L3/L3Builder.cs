@@ -123,7 +123,8 @@ namespace Shifters
             }
             var stand = new Vector3(tip.x - dir * 0.5f, 2f, tip.z);
             PuzzleVisuals.Cyl(decor, "TauntSpot", stand + Vector3.up * 0.008f, 0.36f, 0.016f, MatKey.HazardYellow, null, 20, false);
-            _ctx.Label(decor, new Vector3(tip.x - dir * 1.25f, 2.02f, tip.z), Quaternion.Euler(90f, dir > 0f ? 90f : -90f, 0f), label, 0.3f, UIColors.AccentYellow, 1.9f);
+            var lureLabel = _ctx.Label(decor, new Vector3(tip.x - dir * 1.25f, 2.02f, tip.z), Quaternion.Euler(90f, dir > 0f ? 90f : -90f, 0f), InputPrompts.Format(label, false, false), 0.3f, UIColors.AccentYellow, 1.9f);
+            if (label.IndexOf('{') >= 0) DevicePromptText.Attach(lureLabel, label);   // gamepad prompts: taunt key follows the device, live
             return stand;
         }
 
